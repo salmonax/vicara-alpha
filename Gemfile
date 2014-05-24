@@ -4,9 +4,9 @@ ruby "2.0.0"
 group :development do
   gem 'rack-livereload'
   gem 'guard-livereload', require: false
+  gem 'sinatra-contrib'
 end
 
 gem 'sinatra'
-gem 'sinatra-contrib'
 gem 'thin'
 gem 'haml'
