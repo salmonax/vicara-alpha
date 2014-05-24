@@ -1,4 +1,5 @@
 require 'sinatra'
+require 'haml'
 
 get "/" do 
   haml :root
