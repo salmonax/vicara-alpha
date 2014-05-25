@@ -6,12 +6,17 @@ get "/" do
   haml :root
 end
 
+get "/ajax" do
+  haml :ajax
+end
+
 get "/start" do
-  haml :start, :layout => (request.xhr? ? false : :layout)
+  "It begins."
+  # haml :start, :layout => (request.xhr? ? false : :layout)
 end
 
 get "/stop" do
-  haml :stop, :layout => (request.xhr? ? false : :layout)
+  "It has ended."
 end
 
 __END__
@@ -19,14 +24,35 @@ __END__
 @@ layout
 %html
   %head
-    %title AJAX Example
+    %title Naomi Diaspora
     %script{type: "text/javascript", 
             src: "http://code.jquery.com/jquery-2.1.0.min.js"}
+    %script{type: "text/javascript",
+            src: "https://raw.githubusercontent.com/odyniec/jQuery-tinyTimer/master/jquery.tinytimer.min.js"}
+    %link{ rel:"stylesheet", href:"/stylesheets/naomi.css"}
   %body
-    #message
     =yield
 
 @@ root
+#timer hello
+:css
+
+  #timer {
+    background: lightsteelblue;
+    text-align: center;
+    height: 200px;
+    line-height: 200px;
+    width: 400px;
+  }
+
+:javascript
+
+  var d = new Date();
+
+  $('#timer').on('click', function(event) { d.setMinutes(d.getMinutes() + 25); $('#timer').tinyTimer({ to: d }); });
+
+@@ ajax
+#message
 :javascript
   $(document).ready(function(){
     $("#start").click(function(){
@@ -42,13 +68,3 @@ __END__
   });
 %button#start Start
 %button#stop Stop
-
-@@ hmm
-#fuck YEAH BABY YEAH
-
-@@ start
-It begins.
-
-@@ stop
-It has ended.
-
