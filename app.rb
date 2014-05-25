@@ -5,7 +5,7 @@ require 'haml'
 if development?
   require 'sinatra/reloader'
   require 'dotenv'
-  # Dotenv.load
+  Dotenv.load
 end
 
 enable :sessions
