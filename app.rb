@@ -1,9 +1,18 @@
 require 'sinatra'
-require 'sinatra/reloader' if development?
+require 'dropbox_sdk'
 require 'haml'
 
+if development?
+  require 'sinatra/reloader'
+  require 'dotenv'
+  # Dotenv.load
+end
+
+enable :sessions
+
 get "/" do 
-  haml :root
+  "#{ENV['DROPBOX_KEY']}!!!" + "#{ENV['DROPBOX_SECRET']}!!!"
+  # haml :root
 end
 
 get "/ajax" do
@@ -34,7 +43,7 @@ __END__
     =yield
 
 @@ root
-#timer hello
+#timer hello!
 :css
 
   #timer {
