@@ -9,10 +9,10 @@ if development?
 end
 
 enable :sessions
+set :session_secret, ENV['SESSION_SECRET']
 
 get "/" do 
-  "#{ENV['DROPBOX_KEY']}!!!" + "#{ENV['DROPBOX_SECRET']}!!!"
-  # haml :root
+  haml :root
 end
 
 get "/ajax" do
@@ -43,7 +43,7 @@ __END__
     =yield
 
 @@ root
-#timer hello!
+#timer hello.
 :css
 
   #timer {
