@@ -12,7 +12,7 @@ enable :sessions
 set :session_secret, ENV['SESSION_SECRET']
 
 get "/" do 
-  haml :root
+  haml :animation
 end
 
 get "/ajax" do
@@ -33,11 +33,15 @@ __END__
 @@ layout
 %html
   %head
-    %title Naomi Diaspora
+    %title Naomi Diaspora - GSAP
     %script{type: "text/javascript", 
             src: "http://code.jquery.com/jquery-2.1.0.min.js"}
     %script{type: "text/javascript",
             src: "https://raw.githubusercontent.com/odyniec/jQuery-tinyTimer/master/jquery.tinytimer.min.js"}
+    %script{type: "text/javascript",
+            src: "https://raw.githubusercontent.com/greensock/GreenSock-JS/master/src/minified/TweenLite.min.js" }
+    %script{type: "text/javascript",
+            src: "https://raw.githubusercontent.com/greensock/GreenSock-JS/master/src/minified/plugins/CSSPlugin.min.js"}
     %link{ rel:"stylesheet", href:"/stylesheets/naomi.css"}
   %body
     =yield
