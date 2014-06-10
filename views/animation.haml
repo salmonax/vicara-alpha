@@ -1,3 +1,16 @@
+:javascript
+  $(document).ready( function(){
+    var logo = document.getElementById("logo");
+    var demo = document.getElementById("demo");
+    TweenLite.from(logo, 2, {opacity:10})
+    TweenLite.to(logo, 1, {left:"632px", top:"632px"});
+    TweenLite.to(demo, 1, {backgroundColor:"white"})
+    TweenLite.to(logo, 1, {left:"-=632px",top:"0px", delay: 1})
+    TweenLite.to(demo, 1, {backgroundColor:"red",width:"60px", height:"60px", delay: 1})
+    TweenLite.to([logo,demo],1, {scale:0.6,delay:2})
+    TweenLite.to($(".neato"),  1, {scale:1.1,delay:3})
+  });
+
 :css 
   body{
       background-color:#000;
@@ -20,17 +33,3 @@
   #updateOutput
   #completeOutput
 
-:javascript
-
-$(window).load() = function(){
-  var logo = document.getElementById("logo");
-  var demo = document.getElementById("demo");
-  TweenLite.from(logo, 2, {opacity:10})
-  TweenLite.to(logo, 1, {left:"632px", top:"632px"});
-  TweenLite.to(demo, 1, {backgroundColor:"white"})
-  TweenLite.to(logo, 1, {left:"-=632px",top:"0px", delay: 1})
-  TweenLite.to(demo, 1, {backgroundColor:"red",width:"60px", height:"60px", delay: 1})
-  TweenLite.to([logo,demo],1, {scale:0.6,delay:2})
-  TweenLite.to($(".neato"),  1, {scale:1.1,delay:3})
-
-}
