@@ -8,7 +8,7 @@ group :development do
   gem 'sinatra-contrib'
 end
 
-gem 'dropbox-sdk'
 gem 'sinatra'
 gem 'thin'
 gem 'haml'
+gem 'redcarpet'
