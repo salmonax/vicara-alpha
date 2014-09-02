@@ -11,7 +11,7 @@ enable :sessions
 set :session_secret, ENV['SESSION_SECRET']
 
 get "/" do 
-  haml :root
+  haml :android
 end
 
 __END__
@@ -20,6 +20,7 @@ __END__
 !!!5
 %html
   %head
+    %link{ rel:"stylesheet", href:"/stylesheets/vicara.css"}
   %body
     =yield
 
