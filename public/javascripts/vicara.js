@@ -64,7 +64,7 @@ function fillMeter(container,done) {
   $(container + " > .block:lt(" + done + ")").css("opacity",0.4); 
 }
 
-var allMargin = 1;
+var allMargin = 0.5;
 
 setTimeMarkerPosition();
 initMeter("#first",targets.first,allMargin);
@@ -76,3 +76,9 @@ fillMeter("#third",done.third);
 
 initMeter("#twenty-four",48,allMargin);
 setMeterMargin(allMargin);
+
+
+setInterval(function(){
+  $("#bottom-half").text("Width: " + window.innerWidth);
+  $("#bottom-half").append("<br>Height: " + window.innerHeight);
+}, 1);

@@ -20,7 +20,7 @@ __END__
 !!!5
 %html
   %head
-    %script{src:"https://code.jquery.com/jquery-2.1.1.min.js"}
+    %script{src:"/javascripts/jquery-2.1.0.min.js"}
     %link{rel:"stylesheet", href:"/stylesheets/vicara.css"}
   %body
     =yield
