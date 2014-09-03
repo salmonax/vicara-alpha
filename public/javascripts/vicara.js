@@ -31,7 +31,8 @@ function initMeter(container,target,margin) {
   }
 
   $(container + " > .block").css("width", function() {
-    return ($(this).parent().width()/target-margin*2.1);
+    // return ($(this).parent().width()/target-margin*2);
+    return "calc(" + (100/target) + "% - " + margin*2 + "px)";
   });
 
   $(".block").css("margin-right", function() {
@@ -81,4 +82,4 @@ setMeterMargin(allMargin);
 setInterval(function(){
   $("#bottom-half").text("Width: " + window.innerWidth);
   $("#bottom-half").append("<br>Height: " + window.innerHeight);
-}, 1);
+}, 1000);
