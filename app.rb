@@ -20,9 +20,11 @@ __END__
 !!!5
 %html
   %head
-    %link{ rel:"stylesheet", href:"/stylesheets/vicara.css"}
+    %script{src:"https://code.jquery.com/jquery-2.1.1.min.js"}
+    %link{rel:"stylesheet", href:"/stylesheets/vicara.css"}
   %body
     =yield
+  %script{src:"/javascripts/vicara.js"}
 
 @@ root
 :markdown
