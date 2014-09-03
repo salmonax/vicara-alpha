@@ -31,7 +31,7 @@ function initMeter(container,target,margin) {
   }
 
   $(container + " > .block").css("width", function() {
-    return ($(this).parent().width()/target-margin*2);
+    return ($(this).parent().width()/target-margin*2.1);
   });
 
   $(".block").css("margin-right", function() {
