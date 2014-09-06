@@ -1,11 +1,33 @@
+html {
+  height: 100%;
+}
+
 body {
+  height: 100%;
   margin: 0px;
   background: rgb(0,40,80);
+}
+
+#android {
+  position: relative;
+  font-family: 'Helvetica';
+  color: rgb(120,120,200);
+  background: rgb(60,60,100);
+  text-align: center;
+  width: 100vw;
+  height: 100%;
+}
+
+#sandbox {
+  color: rgb(120,120,200);
+  padding: 10px;
+  height: 100%;
 }
 
 #top-half {
   height: 50%;
 }
+
 #bottom-half {
   height: 50%;
   background: rgb(0,0,0);
@@ -16,12 +38,11 @@ body {
   width: 100%;
   height: 12px;
   background: rgb(0,0,0);
-  opacity: 0.5;
 }
 
 #time-marker {
   position: absolute;
-  width: 1px;
+  width: 3px;
   height: 12px;
   background: red;
 }
@@ -30,25 +51,14 @@ body {
   font-size: 7em;
 }
 
-
-#android {
-  position: relative;
-  font-family: 'sans-serif';
-  color: rgb(120,120,200);
-  background: rgb(60,60,100);
-  text-align: center;
-  width: 100vw;
-  height: 100vh;
-}
-
 #meter {
   margin: auto;
   background: rgb(100,100,100);
-  width: 80%;
+  width: 90%;
   height: 12px;
 }
 
-#first, #second, #third {
+#first, #second, #third, .meta-block {
   color: rgb(150,150,150);
   float: left;
   margin: auto;
@@ -56,33 +66,42 @@ body {
   height: 100%;
 }
 
-#first {
-  background: rgb(100,60,60);
+#twenty-four > .block {
+  background: rgb(40,40,40);
+  border: 1px solid rgb(30,30,30);
 }
 
-#second {
-  background: rgb(60,100,60);
+#first > .block {
+  background: rgb(120,80,80);
+  border: 1px solid rgb(100,70,70);
 }
 
-#third {
-  background: rgb(30,30,100);
+#second > .block {
+  background: rgb(80,120,80);
+  border: 1px solid rgb(50,100,50)
 }
 
+#third > .block {
+  background: rgb(80,80,120);
+  border: 1px solid rgb(70,70,100);
+}
 
 .block {
-  background: rgb(200,200,200);
-  opacity: 0.2;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  border-style: solid;
   float: left;
   height: 100%;
+  opacity: 1;
 }
 
 
 /*Goofy effects*/
-#poms.shadow {
+.shadow {
   text-shadow: 6px 6px 10px rgba(0, 0, 0, 0.3);
 }
 
-#android.gradient { 
+#android.gradient, .gradient { 
   background: #c48787; /* Old browsers */
   background: -moz-radial-gradient(center, ellipse cover,  #c48787 1%, #010235 100%); /* FF3.6+ */
   background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(1%,#c48787), color-stop(100%,#010235)); /* Chrome,Safari4+ */
