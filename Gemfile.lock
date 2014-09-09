@@ -7,6 +7,8 @@ GEM
     coderay (1.1.0)
     daemons (1.1.9)
     dotenv (0.10.0)
+    dropbox-sdk (1.6.4)
+      json
     em-websocket (0.5.1)
       eventmachine (>= 0.12.9)
       http_parser.rb (~> 0.6.0)
@@ -26,6 +28,7 @@ GEM
     haml (4.0.5)
       tilt
     http_parser.rb (0.6.0)
+    json (1.8.1)
     listen (2.7.5)
       celluloid (>= 0.15.2)
       rb-fsevent (>= 0.9.3)
@@ -73,6 +76,7 @@ PLATFORMS
 
 DEPENDENCIES
   dotenv
+  dropbox-sdk
   guard-livereload
   haml
   rack-livereload
