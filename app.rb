@@ -19,7 +19,7 @@ def authed?
 end
 
 def get_web_auth
-  DropboxOAuth2Flow.new(ENV['APP_KEY'], ENV['APP_SECRET'], "#{@env['rack.url_scheme']}://#{request.host_with_port}/dropbox/callback", session, :dropbox_auth_csrf_token)
+  DropboxOAuth2Flow.new(ENV['APP_KEY'], ENV['APP_SECRET'], "https://#{request.host_with_port}/dropbox/callback", session, :dropbox_auth_csrf_token)
 end
 
 def get_dropbox_client
