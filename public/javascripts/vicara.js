@@ -145,3 +145,5 @@ $("#bottom-half").on('touchstart click',addStuff);
 function addStuff() { 
    $(this).append("<br>click!!");
 }
+
+$("#pomsheet-area").load("/stuff")

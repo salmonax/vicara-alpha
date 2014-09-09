@@ -19,7 +19,7 @@ def authed?
 end
 
 def get_web_auth
-  DropboxOAuth2Flow.new(ENV['APP_KEY'], ENV['APP_SECRET'], "https://#{request.host_with_port}/dropbox/callback", session, :dropbox_auth_csrf_token)
+  DropboxOAuth2Flow.new(ENV['APP_KEY'], ENV['APP_SECRET'], "http://#{request.host_with_port}/dropbox/callback", session, :dropbox_auth_csrf_token)
 end
 
 def get_dropbox_client
@@ -29,9 +29,10 @@ end
 # "#{@env['rack.url_scheme']}://#{request.host_with_port}/login"
 
 get "/" do 
-  authed?
-  redirect '/stuff'
-  # haml :android
+  # authed?
+  # redirect '/stuff'
+  haml :android
+  # request.host
 end
 
 get "/sandbox" do
@@ -55,21 +56,16 @@ get '/dropbox/callback' do
 end
 
 get "/stuff" do
-  authed?
-  client = get_dropbox_client
-  # "Hello world"
-    # redirect '/login' unless session[:dropbox]
-    
-    # dropbox_session = DropboxSession::deserialize(session[:dropbox])
-
-    # # redirect '/session_expired' unless dropbox_session.authorized?
-    # dropbox_session.get_access_token rescue redirect '/session_expired'
-
-    # client = DropboxClient.new(dropbox_session, :app_folder)
-    content_type 'text/plain'
-    client.get_file("2014 Pomodoro.txt")
-    # client.account_info().inspect
-
+  content_type 'text/plain'
+  if request.host != "192.168.43.72"
+    authed?
+    client = get_dropbox_client
+    @file = client.get_file("2014 Pomodoro.txt")
+  else
+    # grab file directory if testing locally via phonegap
+    @file = File.read("/home/salmonax/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
+  end
+  @file
 end
 
 get '/logout' do

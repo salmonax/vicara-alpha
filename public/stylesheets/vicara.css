@@ -34,6 +34,17 @@ body {
   opacity: 0.2;
 }
 
+#pomsheet-area {
+  border-style: none;
+  border-color: Transparent;
+  background-color: Transparent;
+  color: white;
+  overflow: hidden;
+  width:90%;
+  height: 90%;
+  resize: none;
+}
+
 #twenty-four {
   width: 100%;
   height: 12px;
