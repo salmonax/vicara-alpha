@@ -150,6 +150,7 @@ function addStuff() {
 }
 
 $("#pomsheet-area").load("/stuff")
+$("#poms.shadow").load("/poms_left")
 
 // $(".draggable").draggable();
 // $("#slider").slider({

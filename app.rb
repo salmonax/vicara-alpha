@@ -2,6 +2,13 @@ require 'sinatra'
 require 'redcarpet'
 require 'dropbox_sdk'
 
+require 'date'
+require './lib/meter.rb'
+require './lib/modules/hash_magic.rb'
+require './lib/task.rb'
+require './lib/pom_parser.rb'
+
+
 if development?
   require 'sinatra/reloader'
   require 'dotenv'
@@ -54,6 +61,14 @@ get '/dropbox/callback' do
     session[:dropbox_token] = access_token
     redirect to('/stuff')
   end
+end
+
+get "/poms_left" do
+  client = get_dropbox_client
+  raw_pomsheet = client.get_file("2014 Pomodoro.txt")
+  pom_parser = PomParser.new(raw_pomsheet)
+  meter = Meter.new(pom_parser)
+  "#{meter.poms_left}"
 end
 
 get "/stuff" do
