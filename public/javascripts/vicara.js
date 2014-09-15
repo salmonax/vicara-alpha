@@ -77,18 +77,18 @@ initMeter("#twenty-four",48,allMargin);
 
 // simple auto-refresh ajaxing technique
 // refreshes = 0;
-// function worker() {
-//   $.ajax({
-//     url: '/',
-//     success: function(data) {
-//       $('#bottom-half').text(refreshes++);
-//     },
-//     complete: function() {
-//       setTimeout(worker,1000);
-//     }
-//   });
-// }
-// worker();
+function worker() {
+  $.ajax({
+    url: '/poms_left',
+    success: function(data) {
+      $('#poms.shadow').text(data);
+    },
+    complete: function() {
+      setTimeout(worker,1000);
+    }
+  });
+}
+worker();
 
 // var data = [4, 8, 15, 16, 23, 42];
 
