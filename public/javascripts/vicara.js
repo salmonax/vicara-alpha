@@ -12,12 +12,6 @@ var done = {
   third: 1,
 }
 
-var focusData = [
-  {target: 5, done: 4},
-  {target: 10, done: 3},
-  {target: 3, done: 1}
-]
-
 function initMeter(container,target,margin) {
   for (var i = 0; i < target; i++) {
     $("<div class='block'></div>").appendTo(container);
@@ -29,12 +23,17 @@ function initMeter(container,target,margin) {
 
 setInterval(function() {
     setTimeMarkerPosition();
+    setLeftRight();
 }, 1000);
 
-function timeMarkerPosition() {
+function decimalTime() {
   var d = new Date();
   var decimal_time = d.getHours() + (d.getMinutes()+(d.getSeconds()/60))/60;
-  return (decimal_time/24*100).toFixed(2);
+  return decimal_time;  
+}
+
+function timeMarkerPosition() {
+  return (decimalTime()/24*100).toFixed(2);
 }
 
 function setTimeMarkerPosition() {
@@ -46,6 +45,13 @@ function setTimeMarkerPosition() {
 function fillMeter(container,done,color) {
   $(container + " > .block:lt(" + done + ")").css("background",color); 
 }
+
+function setLeftRight() {
+  $("#pom-left").text((decimalTime()*2).toFixed(0));
+  $("#pom-right").text((48-decimalTime()*2).toFixed(0));
+}
+
+
 
 var allMargin = 0;
 
@@ -84,9 +90,6 @@ initMeter("#twenty-four",48,allMargin);
 // }
 // worker();
 
-
-// setTimeout("location.reload(true);",1000);
-
 // var data = [4, 8, 15, 16, 23, 42];
 
 // var x = d3.scale.linear()
@@ -105,7 +108,8 @@ initMeter("#twenty-four",48,allMargin);
 var focusData = [
   {target: 5, done: 4},
   {target: 10, done: 3},
-  {target: 3, done: 1}
+  {target: 3, done: 1},
+  {target: 4, done: 2}
 ]
 
 function randColor() { 
@@ -140,10 +144,65 @@ d3.select("#sandbox")
     });
     // .text("HRLLO@")
 
-$("#bottom-half").on('touchstart click',addStuff);
 
 function addStuff() { 
    $(this).append("<br>click!!");
 }
 
 $("#pomsheet-area").load("/stuff")
+
+// $(".draggable").draggable();
+// $("#slider").slider({
+//     orientation: "horizontal"
+// });
+
+// var logo = $('#nurnie');
+// TweenLite.to(logo,1, {left:"500px"})
+
+
+// 
+// setTimeout("location.reload(true);",2000);
+
+$("#bottom-half").on('touchstart click',addStuff);
+$("#logo2").on('touchstart click',jeeZap);
+
+function jeeZap() {
+  var logo = $("#logo");
+
+  var logo2 = $("#logo2");
+  TweenMax.to([logo,logo2], 0.5, {
+    width:"632px", 
+    height:"400px", 
+    backgroundColor: "white",
+    onUpdate:updateHandler,
+    onComplete:completeHandler,
+    onCompleteParams:["animation complete!"]
+  });
+  TweenMax.to([logo,logo2], 0.5, {
+    width:"50px", 
+    height:"50px", 
+    backgroundColor: "black",
+    onUpdate:updateHandler,
+    delay: 0.5
+  });
+}
+
+function jeeZap2() { 
+  $("#logo").animate({width: "500px",height: "500px"}, 1000);
+  $("#logo").animate({width: "50px", height: "50px"}, 1000);
+}
+
+
+function updateHandler() {
+  $("#logo").text($("#logo").css("width"))
+}
+function completeHandler(message) {
+  $("#whatever").text(message);
+}
+
+Draggable.create(".peg", {type:"x,y", edgeResistance:1, bounds: ".slider"});
+
+Draggable.create("#button-start", {type:"x,y"})
+
+// jeeZap();
+

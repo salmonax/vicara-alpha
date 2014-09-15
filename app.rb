@@ -19,7 +19,8 @@ def authed?
 end
 
 def get_web_auth
-  DropboxOAuth2Flow.new(ENV['APP_KEY'], ENV['APP_SECRET'], "https://#{request.host_with_port}/dropbox/callback", session, :dropbox_auth_csrf_token)
+  host_type = (request.host == 'localhost') ? 'http' : 'https'
+  DropboxOAuth2Flow.new(ENV['APP_KEY'], ENV['APP_SECRET'], "#{host_type}://#{request.host_with_port}/dropbox/callback", session, :dropbox_auth_csrf_token)
 end
 
 def get_dropbox_client
@@ -91,6 +92,9 @@ __END__
   %head
     %script{src:"/javascripts/jquery-2.1.0.min.js"}
     %script{src:"/javascripts/d3.v3.min.js"}
+    %script{src:"/javascripts/Draggable.min.js"}
+    %script{src:"/javascripts/TweenMax.min.js"}
+    %link{rel:"stylesheet", href:"/stylesheets/jquery-ui.min.css"}    
     %link{rel:"stylesheet", href:"/stylesheets/vicara.css"}
   %body
     =yield
@@ -109,5 +113,7 @@ __END__
   - pushable to Heroku out of the box
 
 @@ sandbox
-#sandbox.gradient
-  #bottom-half
+#sandbox.gradient.draggable
+  #logo.square.draggable HELLO
+  #logo2.square HELLO
+  #whatever HELLO

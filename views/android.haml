@@ -2,11 +2,16 @@
   #top-half
     #time-marker
     #twenty-four
-    #poms.shadow 8
-    #timer
-    #meter
+    .container
+      #pom-left
+      #pom-right
+      #poms.shadow 9
+      #button-start START
+    #meter.draggable
       #first
       #second
       #third
+  #blah.slider
+    .peg
   #bottom-half
-    %textarea#pomsheet-area
+    %textarea#pomsheet-area{readonly: true}
