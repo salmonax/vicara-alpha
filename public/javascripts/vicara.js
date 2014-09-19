@@ -77,18 +77,18 @@ initMeter("#twenty-four",48,allMargin);
 
 // simple auto-refresh ajaxing technique
 // refreshes = 0;
-function worker() {
-  $.ajax({
-    url: '/poms_left',
-    success: function(data) {
-      $('#poms.shadow').text(data);
-    },
-    complete: function() {
-      setTimeout(worker,1000);
-    }
-  });
-}
-worker();
+// function worker() {
+//   $.ajax({
+//     url: '/poms_left',
+//     success: function(data) {
+//       $('#poms.shadow').text(data);
+//     },
+//     complete: function() {
+//       setTimeout(worker,1000);
+//     }
+//   });
+// }
+// worker();
 
 // var data = [4, 8, 15, 16, 23, 42];
 
@@ -201,9 +201,49 @@ function completeHandler(message) {
   $("#whatever").text(message);
 }
 
+
+var daily_data = {}
+daily_data.tags = ["R","RR","WW","W",">"];
+daily_data.categories = ["Read","Journal Writing","Vicara"]
+
+function makeButtons(data,container_id) {
+  $("#top-half").append("<div id =" + container_id + "></div>");
+  $.each(data, function(i,l) { 
+    $("#" + container_id).append("<div class = 'tag-button'>" + l + "</div>");
+  });
+}
+
+makeButtons(daily_data.tags,"tag-buttons");
+makeButtons(daily_data.categories,"category-buttons");
+
+$("#input-start").on("touchstart click", function() {
+  $("#tag-buttons").css({
+      "display": "block"
+    });
+});
+
+$("#tag-buttons > .tag-button").on("touchstart click", function() { 
+  $("#category-buttons").css({
+    "display" : "block"
+  });
+  $("#pomsheet-input").val($(this).text());
+});
+
+$("#category-buttons > .tag-button").on("touchstart click", function() { 
+  $("#category-buttons").css({
+    "display" : "block"
+  });
+  var text = $(this).text();
+  $("#pomsheet-input").val(text);
+});
+
+
 Draggable.create(".peg", {type:"x,y", edgeResistance:1, bounds: ".slider"});
 
-Draggable.create("#button-start", {type:"x,y"})
+
+Draggable.create("#button-start", {type:"x,y"});
+
 
 // jeeZap();
+
 

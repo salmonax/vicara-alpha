@@ -39,7 +39,7 @@ end
 get "/" do 
   # authed?
   # redirect '/stuff'
-  haml :android
+  haml :treemap
   # request.host
 end
 
@@ -114,7 +114,7 @@ __END__
   %body
     =yield
   %script{src:"/javascripts/vicara.js"}
-
+  %script{src:"/javascripts/arbolade.js"}
 @@ root
 :markdown
   Welcome to Sinatra Minimal, a simple starter kit!
