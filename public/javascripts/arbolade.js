@@ -32,7 +32,7 @@ var whatever = ["Hello","Bye","Whatever"];
 // });
 
 function p(whatever) { 
-  $("#android").append(whatever);
+  $("#android").append(whatever+"<br>")
 }
 
 // p(data.children[0].children[0].name);
@@ -41,8 +41,8 @@ $("#arbolade")
   .css("position","relative")
   .css("left",40)
   .css("top",40)
-  .css("width",290)
-  .css("height",290)
+  .css("width","30%")
+  .css("height","30%")
   .css("backgroundColor","black");
 
 function rectangle(x,y,w,h,color,text) {
@@ -98,22 +98,46 @@ function manualCells(data) {
   var offset = { x: 0, y: 0 };
   var width = 0, height = 0;
 
+  function toPercent(cell,container) {
+    return (cell/container*100).toFixed(3);
+  }
+
   for (i = 0; i < data.length; i++) {
     if (i%2 == 0) { 
       height = container.height-offset.y;
+
+      height = 100.0 - offset.y;
+      // height = toPercent(height,container.height);
       width = container.area*cells[i].percent/height;
+      
+
+      // height = toPercent(height,container.height) + "%";
+      width = toPercent(width,container.width) + "%";
+
+      p(i + ", width:" + toPercent(container.area*cells[i].percent/height,container.width) + "%");
+      p(i + "," + "height:" + toPercent(height,container.height) + "%");
     }
     else { 
       width = container.width-offset.x;
+
+      // width = toPercent(width,container.width);
       height = container.area*cells[i].percent/width;
+
+
+      height = toPercent(height,container.height) + "%";
+      width = toPercent(width,container.width) + "%";
+
+      p(i + ", width:" + toPercent(width,container.width) + "%");
+      p(i + ", height:" + toPercent(container.area*cells[i].percent/width,container.width) + "%");
     }
+    // p(height.toFixed(0));
 
     var colorValue = (255*cells[i].percent).toFixed(0);
     var colorRGB = "rgb(" + colorValue + "," + colorValue + "," + colorValue + ")";
 
     rectangle(
-      offset.x,
-      offset.y,
+      offset.x + "%",
+      offset.y + "%",
       width,
       height,
       colorRGB,
@@ -121,10 +145,11 @@ function manualCells(data) {
     );
 
     if (i%2 == 0) {
-      offset.x += width;
+      offset.x += parseFloat(width);
+      p(offset.x);
     }
     else {
-      offset.y += height;
+      offset.y += parseFloat(height);
     }
 
   }
@@ -138,7 +163,7 @@ function addCells(array,container) {
   });
 }
 
-manualCells(areas);
+// manualCells(areas);
 
 // addCells(areas);
 
@@ -153,6 +178,6 @@ manualCells(areas);
 
 // rectangle(0,0,100,100,"rgb(100,100,100)");
 // rectangle(0,0,100,100,"rgb(50,100,100)");
-// rectangle(0,0,100,100,"rgb(40,100,100)");
+rectangle(0,0,"50%",100,"rgb(40,100,100)");
 
 // p(String($("#arbolade > .rect").length));

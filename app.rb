@@ -39,7 +39,7 @@ end
 get "/" do 
   # authed?
   # redirect '/stuff'
-  haml :treemap
+  haml :android
   # request.host
 end
 

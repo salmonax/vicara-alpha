@@ -88,7 +88,7 @@ class PomParser
     merge_books_acronyms!
     #fuzzy match would go here
     # p @category_schema
-    @full[:nested] = nestle_flat_hash(@full[:categories],@category_schema)
+    # @full[:nested] = nestle_flat_hash(@full[:categories],@category_schema)
     ## Uh, divide_in_three suddenly broke for some reason..
     # @full[:categories] = divide_in_three(@full[:categories])
     # @full[:books] = divide_in_three(@full[:books])
@@ -219,8 +219,10 @@ class PomParser
 
     @days[current_date][:output] += task.properties[:output]
 
-    add_to_key(category_totals_hash,task.properties[:category],task_poms) #-> maybe add support for multiple, later
-    add_to_key(@full[:categories],task.properties[:category],task_poms)
+    # add_to_key(category_totals_hash,task.properties[:category],task_poms) #-> maybe add support for multiple, later
+    # add_to_key(@full[:categories],task.properties[:category],task_poms)
+
+    nest_by_comma(task.properties[:category],task_poms,category_totals_hash)
 
     @total += task_poms
   end
@@ -242,6 +244,59 @@ class PomParser
     end
     book_title.reverse.join(' ')
   end
+
+  def nest_by_comma(category_raw,poms,category_totals_hash)
+    #WARNING: this will fail with nesting of more than one level!
+    #WARNING: this is probably the worse single piece of code in the whole fucking program
+    categories = category_raw.split(/,\s?/)
+    if categories.length > 1
+      deepest_totals_hash = category_totals_hash
+      deepest_full_hash = @full[:categories]
+
+      extant_category_totals_hash = category_totals_hash[categories.first]
+      # Catches a nested hash
+      if extant_category_totals_hash.class == Fixnum
+        category_totals_hash[categories.first] = { "Misc" => extant_category_totals_hash }
+        # add_to_key(category_totals_hash,"Misc",poms)
+      end
+      if @full[:categories][categories.first].class == Fixnum
+        @full[:categories][categories.first] = { "Misc" => @full[:categories][categories.first]}
+      end
+
+      categories.each_with_index do |category, i| 
+        # pp i.to_s + " " + categories.length.to_s + " " + category
+        if i < categories.length-1
+          deepest_totals_hash[category] ||= Hash.new { |h,k| h[k] = {} }
+          deepest_full_hash[category] ||= Hash.new { |h,k| h[k] = {} }
+        else
+          # deepest_totals_hash[category]
+          add_to_key(deepest_totals_hash,category,poms)
+          add_to_key(deepest_full_hash,category,poms)
+          # add_to_key()
+        end
+        deepest_totals_hash = deepest_totals_hash[category]
+        deepest_full_hash = deepest_full_hash[category]
+        # end
+      end
+
+    else
+      category = category_raw
+      #for daily totals
+      if category_totals_hash[category].class != Hash
+        add_to_key(category_totals_hash,category,poms)
+        # add_to_key(@full[:categories],category,poms)
+      else 
+        add_to_key(category_totals_hash[category],"Misc",poms)
+      end
+      # for full totals
+      if @full[:categories][category].class != Hash
+        add_to_key(@full[:categories],category,poms)
+      else
+        add_to_key(@full[:categories][category],"Misc",poms)
+      end
+    end
+  end
+
 
   def extract_book(task)
     prepositions = %w{with a in and at on by}
