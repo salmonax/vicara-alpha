@@ -26,6 +26,11 @@ setInterval(function() {
     setLeftRight();
 }, 1000);
 
+// This is awful; temporary. Long-poll or whatever will take care of crap like this.
+setInterval(function() {
+    setTwentyFour();
+}, 10000);
+
 function decimalTime() {
   var d = new Date();
   var decimal_time = d.getHours() + (d.getMinutes()+(d.getSeconds()/60))/60;
@@ -65,6 +70,29 @@ initMeter("#third",targets.third,allMargin);
 fillMeter("#third",done.third,"rgb(120,120,150");
 
 initMeter("#twenty-four",48,allMargin);
+
+function fillTwentyFour(data,color) {
+  for (i = 0; i < data.length; i++) {
+    // Inner loops subtracts position for extra poms. Needs check for under 0, over 48
+    for (j = 0; j < data[i].poms; j++) { 
+      $("#twenty-four > .block:nth-child(" + (data[i].time*2-j) +")").css("background",color);
+    }
+  }
+}
+
+function setTwentyFour() {
+  $.getJSON('/today', function(data){
+    fillTwentyFour(data,"rgb(150,150,150");
+  });
+}
+
+ setTwentyFour();
+
+// var entry_times = '[{"time":1.0,"poms":1.0}]';
+// fillTwentyFour(entry_times,"rgb(150,150,150");
+
+
+
 
 // setMeterMargin(allMargin);
 
@@ -149,8 +177,8 @@ function addStuff() {
    $(this).append("<br>click!!");
 }
 
-$("#pomsheet-area").load("/stuff")
-$("#poms.shadow").load("/poms_left")
+$("#pomsheet-area").load("/stuff");
+$("#poms.shadow").load("/poms_left");
 
 // $(".draggable").draggable();
 // $("#slider").slider({
@@ -238,6 +266,28 @@ $("#category-buttons > .tag-button").on("touchstart click", function() {
 });
 
 
+function initWeeklies() {
+  for (i = 0; i < 14; i++) { 
+    $('#weeklies').append("<div class = weekly-header>" + (i+1) + " </div>");
+  }
+
+  for (i = 0; i < 14; i++) {
+    $('#weeklies').append("<div class = weekly-days></div>");
+  }
+
+  $('.weekly-header').css("width",100/14 + "%");
+  $('.weekly-days').css("width",100/14 + "%");
+
+  for (j = 0; j < 24; j++) {
+    $('.weekly-days').append("<div class = weekly-hour>" + j + " </div>");
+  }
+
+  $('.weekly-days').css
+}
+
+
+initWeeklies();
+
 Draggable.create(".peg", {type:"x,y", edgeResistance:1, bounds: ".slider"});
 
 
@@ -245,5 +295,3 @@ Draggable.create("#button-start", {type:"x,y"});
 
 
 // jeeZap();
-
-

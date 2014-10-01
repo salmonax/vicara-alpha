@@ -79,6 +79,7 @@ DEPENDENCIES
   dropbox-sdk
   guard-livereload
   haml
+  json
   rack-livereload
   redcarpet
   sinatra

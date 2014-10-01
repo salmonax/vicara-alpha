@@ -24,7 +24,8 @@ class Task
   end
 
   def extract_properties(line)
-    time_num_float = line.split(" ")[0].to_f
+    time_num = line.split(" ")[0]
+    time_num_float = time_num.to_f
     start_time = make_time_string(time_num_float)
     task = line.split(" ")[1..-1]
 
@@ -44,6 +45,7 @@ class Task
     task_hash = { date: date, 
                   start_time: start_time, 
                   end_time: end_time, 
+                  entry_time: time_num,
                   tags: parse_tags(tags), 
                   category: category,
                   task: task, 

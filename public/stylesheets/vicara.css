@@ -8,6 +8,33 @@ body {
   background: rgb(0,40,80);
 }
 
+#weeklies {
+  background: black;
+  width: 100%;
+}
+
+#output { 
+  text-align: left;
+}
+
+.weekly-days { 
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  border: solid;
+  float: left;
+  border-width: 2px;
+  background: rgb(0,40,80);
+  opacity: 0.4;
+}
+
+.weekly-header {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  border: solid;
+  float: left;
+}
+
+
 #tag-buttons, #category-buttons {
   display: none;
 }

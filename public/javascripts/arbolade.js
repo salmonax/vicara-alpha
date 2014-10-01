@@ -1,4 +1,4 @@
-var data = {
+var real_data = {
  "name": "flare",
  "children": [
   {
@@ -24,39 +24,103 @@ var data = {
  ]
 };
 
-var whatever = ["Hello","Bye","Whatever"];
+var nested_data = {
+  "name": "nested",
+  // "size": 3000
+  "children": [
+  {
+    "name": "childridden", 
+    "children": [{
+      "name": "morechillins", "children": [
+        {"name":"dookus","size":10},
+        {"name":"wookus","size":40}
+      ]}, 
 
+      {"name": "woot","size": 20}]
+  },
+  {"name": "childless", "size": 40},
+  {"name": "mmm", "size": 40}
+  ]
+};
 
-// $.each(whatever, function(i, value){ 
-//     $("#arbolade").append("<div>" + value + "</div>");
-// });
+var simple_data = {
+  "name": "simple",
+  // "size": 3000
+  "children": [
+  {"name": "whatever", "size": 40},
+  {"name": "yep", "size": 40},
+  {"name": "mmm", "size": 40}
+  ]
+};  
 
 function p(whatever) { 
-  $("#android").append(whatever+"<br>")
+  $("#output").append(whatever+"<br>")
 }
 
-// p(data.children[0].children[0].name);
+function getAreas(data,top) {
+  if (top) {
+    // p("TOP: " + data.name);
+    var top_array = [];
+    if (data.size) { 
+      top_array = [data.size]; 
+    } else if (data.children) {
+      for (var i=0; i < data.children.length; i++) {
+        // p(i);
+        top_array[i] = getAreas(data.children[i],false);
+      }
+      // p("TOP ARRAY:" + top_array);
+      return top_array;
+    }
+  } else {
+    // p("--LEAF NAME: " + data.name);
+    var leaf_total = 0;
+    if (data.size) {
+      leaf_total += data.size; 
+    } else if (data.children) {
+      // p("THIS MANY CHILLINS: " + data.children.length);
+      for(var i=0; i < data.children.length; i++) {
+        leaf_total += getAreas(data.children[i],false);
+      }
+    }
+    return leaf_total;
+  }
+}
+
+
+
+flat_data = getAreas(nested_data,true);
+// p(flat_data);
+
 
 $("#arbolade")
   .css("position","relative")
-  .css("left",40)
-  .css("top",40)
-  .css("width","30%")
-  .css("height","30%")
-  .css("backgroundColor","black");
+  .css("left",0)
+  .css("top",0)
+  .css("width","100%")
+  .css("height","100%")
+  .css("backgroundColor","black")
+  .css("box-sizing","border-box")
+  .css("border","1px solid black")
+  .css("opacity","0.75");
 
-function rectangle(x,y,w,h,color,text) {
+function rectangle(x,y,w,h,color,border,text) {
   var n = $("#arbolade > div").length;
   $("#arbolade").append("<div id = 'rect-" + n + "'></div>");
   $("#arbolade > #rect-" + n)
+    .css("box-sizing","border-box")
+    .css("border-style","solid")
+    .css("border-width",1)
     .css("float","left")
     .css("position","absolute")
     .css("backgroundColor",color)
+    .css("border-color",border)
     .css("color","rgb(180,180,180")
     .css("left",x)
     .css("top",y)
     .css("width",w)
-    .css("height",h);
+    .css("height",h)
+    .css("z-index","-1")
+    .data({ x: x, y: y, w: w, h: h, clicked: false });
   if (text) { $("#arbolade > #rect-" + n).text(text); } 
 }
 
@@ -65,12 +129,11 @@ function rectangle(x,y,w,h,color,text) {
 
 // FIRST: vertical fit
 
-var areas = [20,40,60,90];
+var areas = [50,35,40,20,15,90];
 
 function manualCells(data) {
 
-  data = data.sort().reverse();
-
+  data = data.sort(function(a,b) { return b-a});
 
   var data_total = 0;
   for (i = 0; i < data.length; i++) {
@@ -98,55 +161,33 @@ function manualCells(data) {
   var offset = { x: 0, y: 0 };
   var width = 0, height = 0;
 
-  function toPercent(cell,container) {
-    return (cell/container*100).toFixed(3);
-  }
-
-  for (i = 0; i < data.length; i++) {
+  for (var i = 0; i < data.length; i++) {
     if (i%2 == 0) { 
-      height = container.height-offset.y;
-
       height = 100.0 - offset.y;
-      // height = toPercent(height,container.height);
-      width = container.area*cells[i].percent/height;
-      
-
-      // height = toPercent(height,container.height) + "%";
-      width = toPercent(width,container.width) + "%";
-
-      p(i + ", width:" + toPercent(container.area*cells[i].percent/height,container.width) + "%");
-      p(i + "," + "height:" + toPercent(height,container.height) + "%");
+      width = cells[i].percent/(height/100)*100;
     }
     else { 
-      width = container.width-offset.x;
-
-      // width = toPercent(width,container.width);
-      height = container.area*cells[i].percent/width;
-
-
-      height = toPercent(height,container.height) + "%";
-      width = toPercent(width,container.width) + "%";
-
-      p(i + ", width:" + toPercent(width,container.width) + "%");
-      p(i + ", height:" + toPercent(container.area*cells[i].percent/width,container.width) + "%");
+      width = 100.0 - offset.x;
+      height = cells[i].percent/(width/100)*100;
     }
-    // p(height.toFixed(0));
 
     var colorValue = (255*cells[i].percent).toFixed(0);
     var colorRGB = "rgb(" + colorValue + "," + colorValue + "," + colorValue + ")";
+    var borderRGB = "rgb(0,0,0)";
 
     rectangle(
       offset.x + "%",
       offset.y + "%",
-      width,
-      height,
+      width  + "%",
+      height + "%",
       colorRGB,
+      borderRGB,
       (cells[i].percent*100).toFixed(1)
     );
 
+    //Add appropriate offset
     if (i%2 == 0) {
       offset.x += parseFloat(width);
-      p(offset.x);
     }
     else {
       offset.y += parseFloat(height);
@@ -155,29 +196,58 @@ function manualCells(data) {
   }
 
 }
+// manualCells(flat_data);
 
-function addCells(array,container) {
+// p("hello");
 
-  $.each(array, function(i,v) { 
-    p("Hello");
-  });
+$.getJSON('/data/books', function(data){
+  var book_data = getAreas(data,true);
+  manualCells(book_data);
+});
+
+
+$("#arbolade").on('touchstart click',"div",touchCell);
+
+function touchCell() {
+  var me = $(this);
+  var data = me.data();
+  var destAnim;
+
+  if (data.clicked == false) {
+    destAnim = {
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%"
+    }
+  } else {
+    destAnim = {
+      top: data.y,
+      left: data.x,
+      width: data.w,
+      height: data.h
+    }
+  }
+  // me.css("z-index","2");
+  TweenMax.to(me,0.3,destAnim);
+  if (data.clicked == false) {
+    me.data("clicked",true);
+    TweenMax.to(me, 0, {zIndex:"1"});
+  } else {
+    me.data("clicked",false);
+    TweenMax.to(me, 0, {zIndex:"-1", delay:0.3});
+  }
 }
 
-// manualCells(areas);
-
-// addCells(areas);
-
-
-
-// $.each(areas, function (i,v) {
-//   p(i + "<br>");
-// });
-
-// p(area_percentages + "<br>");
-
+  // TweenMax.to([logo,logo2], 0.5, {
+  //   width:"50px", 
+  //   height:"50px", 
+  //   backgroundColor: "black",
+  //   onUpdate:updateHandler,
+  //   delay: 0.5
+  // });
 
 // rectangle(0,0,100,100,"rgb(100,100,100)");
 // rectangle(0,0,100,100,"rgb(50,100,100)");
-rectangle(0,0,"50%",100,"rgb(40,100,100)");
+// rectangle(20,0,"50%","50%","rgb(40,100,100)");
 
-// p(String($("#arbolade > .rect").length));

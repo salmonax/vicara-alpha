@@ -9,6 +9,7 @@ group :development do
 end
 
 gem 'sinatra'
+gem 'json'
 gem 'thin'
 gem 'haml'
 gem 'redcarpet'

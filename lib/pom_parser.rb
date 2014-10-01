@@ -4,13 +4,16 @@
 # require 'date'
 
 class PomParser
-  attr_reader :tasks, :days, :full, :total, :jots, :tag_labels, :targets
+  attr_reader :tasks, :days, :full, :total, :jots, :tag_labels, :targets, :today
 
   # def initialize(f,range={})
   def initialize(raw_pomsheet,range={})
     @raw_pomsheet = raw_pomsheet
     # @file = f
     @tasks = []
+    @date_today = Date.today.strftime('%-m/%-d/%Y')
+    # @date_today = "9/21/2014"
+    @details_today = []
     @range = range
     @days = {}
     @full = { tags: {}, categories: {}, books: {}, sum: 0 }
@@ -83,6 +86,8 @@ class PomParser
         # end
 
         # @full[:books].merge!(book) { |k,v1,v2| v1+v2 } if book
+
+        add_details_today(current_date,task)
       end
     end
     merge_books_acronyms!
@@ -92,6 +97,14 @@ class PomParser
     ## Uh, divide_in_three suddenly broke for some reason..
     # @full[:categories] = divide_in_three(@full[:categories])
     # @full[:books] = divide_in_three(@full[:books])
+  end
+
+  def add_details_today(current_date,task)
+    if current_date == @date_today
+      @time_and_poms = { "time" => task.entry_time.to_f,
+                         "poms" => task.poms.to_f }
+      @details_today << @time_and_poms
+    end
   end
 
   def divide_in_three(hash)
@@ -225,6 +238,11 @@ class PomParser
     nest_by_comma(task.properties[:category],task_poms,category_totals_hash)
 
     @total += task_poms
+  end
+
+  def today
+    #WARNING: date identifier is still just a string!
+    @details_today
   end
 
   def grab_book_title(name)

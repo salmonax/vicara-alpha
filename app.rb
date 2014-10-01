@@ -3,11 +3,12 @@ require 'redcarpet'
 require 'dropbox_sdk'
 
 require 'date'
+require 'json'
 require './lib/meter.rb'
 require './lib/modules/hash_magic.rb'
 require './lib/task.rb'
 require './lib/pom_parser.rb'
-
+require './lib/tree_map.rb'
 
 if development?
   require 'sinatra/reloader'
@@ -30,6 +31,18 @@ def get_web_auth
   DropboxOAuth2Flow.new(ENV['APP_KEY'], ENV['APP_SECRET'], "#{host_type}://#{request.host_with_port}/dropbox/callback", session, :dropbox_auth_csrf_token)
 end
 
+def pomsheet
+  if request.host != "192.168.43.72" and request.host != "localhost"
+    authed?
+    client = get_dropbox_client
+    @file = client.get_file("2014 Pomodoro.txt")
+  else
+    # grab file directory if testing locally via phonegap
+    @file = File.read("/home/salmonax/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
+  end
+  @file
+end
+
 def get_dropbox_client
   DropboxClient.new(session[:dropbox_token])
 end
@@ -39,12 +52,18 @@ end
 get "/" do 
   # authed?
   # redirect '/stuff'
-  haml :android
+  # pomsheet
+  authed?
+  haml :treemap
   # request.host
 end
 
 get "/sandbox" do
   haml :sandbox
+end
+
+get "/input" do
+  haml :input
 end
 
 get '/dropbox/auth' do
@@ -63,25 +82,47 @@ get '/dropbox/callback' do
   end
 end
 
+get '/treemap' do
+  haml :treemap
+end
+
+get '/data/books' do
+  content_type :json
+  pom_parser = PomParser.new(pomsheet, last: 40)
+  books_hash = pom_parser.full[:books]
+  Treemap.new(books_hash).full.to_json
+end
+
 get "/poms_left" do
-  client = get_dropbox_client
-  raw_pomsheet = client.get_file("2014 Pomodoro.txt")
+  # client = get_dropbox_client
+  # raw_pomsheet = client.get_file("2014 Pomodoro.txt")
+  raw_pomsheet = pomsheet
   pom_parser = PomParser.new(raw_pomsheet)
   meter = Meter.new(pom_parser)
   "#{meter.poms_left}"
 end
 
+get "/today" do
+  content_type :json
+  pom_parser = PomParser.new(pomsheet)
+  pom_parser.today.to_json
+end
+
 get "/stuff" do
   content_type 'text/plain'
-  if request.host != "192.168.43.72"
-    authed?
-    client = get_dropbox_client
-    @file = client.get_file("2014 Pomodoro.txt")
-  else
-    # grab file directory if testing locally via phonegap
-    @file = File.read("/home/salmonax/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
-  end
-  @file
+  # if request.host != "192.168.43.72"
+  #   authed?
+  #   client = get_dropbox_client
+  #   @file = client.get_file("2014 Pomodoro.txt")
+  # else
+  #   # grab file directory if testing locally via phonegap
+  #   @file = File.read("/home/salmonax/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
+  # end
+  @file = pomsheet
+end
+
+get '/weeklies' do
+  haml :weeklies
 end
 
 get '/logout' do
@@ -115,6 +156,7 @@ __END__
     =yield
   %script{src:"/javascripts/vicara.js"}
   %script{src:"/javascripts/arbolade.js"}
+  %script{src:"/javascripts/ritmus.js"}
 @@ root
 :markdown
   Welcome to Sinatra Minimal, a simple starter kit!
@@ -132,3 +174,11 @@ __END__
   #logo.square.draggable HELLO
   #logo2.square HELLO
   #whatever HELLO
+
+@@ weeklies
+#android.gradient
+  #weeklies.container
+
+@@ ritmus
+#android.gradient
+  #ritmus
