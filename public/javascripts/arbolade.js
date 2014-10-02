@@ -60,16 +60,18 @@ function p(whatever) {
 function getAreas(data,top) {
   if (top) {
     // p("TOP: " + data.name);
-    var top_array = [];
+    var top_object = {};
+    top_object.values = [];
+    top_object.names = [];
     if (data.size) { 
-      top_array = [data.size]; 
+      top_array.values[0] = [data.size]; 
     } else if (data.children) {
       for (var i=0; i < data.children.length; i++) {
-        // p(i);
-        top_array[i] = getAreas(data.children[i],false);
+        top_object.names[i] = data.children[i].name;
+        top_object.values[i] = getAreas(data.children[i],false);
       }
       // p("TOP ARRAY:" + top_array);
-      return top_array;
+      return top_object;
     }
   } else {
     // p("--LEAF NAME: " + data.name);
@@ -88,7 +90,7 @@ function getAreas(data,top) {
 
 
 
-flat_data = getAreas(nested_data,true);
+// flat_data = getAreas(nested_data,true);
 // p(flat_data);
 
 
@@ -101,12 +103,14 @@ $("#arbolade")
   .css("backgroundColor","black")
   .css("box-sizing","border-box")
   .css("border","1px solid black")
-  .css("opacity","0.75");
+  .css("opacity","0.7");
 
 function rectangle(x,y,w,h,color,border,text) {
   var n = $("#arbolade > div").length;
   $("#arbolade").append("<div id = 'rect-" + n + "'></div>");
   $("#arbolade > #rect-" + n)
+    .css("font-size","0.7em")
+    .css("overflow","hidden")
     .css("box-sizing","border-box")
     .css("border-style","solid")
     .css("border-width",1)
@@ -119,7 +123,6 @@ function rectangle(x,y,w,h,color,border,text) {
     .css("top",y)
     .css("width",w)
     .css("height",h)
-    .css("z-index","-1")
     .data({ x: x, y: y, w: w, h: h, clicked: false });
   if (text) { $("#arbolade > #rect-" + n).text(text); } 
 }
@@ -132,11 +135,21 @@ function rectangle(x,y,w,h,color,border,text) {
 var areas = [50,35,40,20,15,90];
 
 function manualCells(data) {
+  // this array of objects MAY be better built from getAreas
+  var sorter_array = []
+  for (var i = 0; i < data.values.length; i++) {
+    sorter_array[i] = {};
+    sorter_array[i].value = data.values[i];
+    sorter_array[i].name = data.names[i];
+  }
 
+  sorter_array.sort(function(a,b) { return b.value-a.value});
+
+  data = data.values;
   data = data.sort(function(a,b) { return b-a});
 
   var data_total = 0;
-  for (i = 0; i < data.length; i++) {
+  for (var i = 0; i < data.length; i++) {
     data_total += data[i];
   }
 
@@ -150,7 +163,7 @@ function manualCells(data) {
 
   // container.area*cells[1].percent/second_width;
 
-  for (i = 0; i < data.length; i++) {
+  for (var i = 0; i < data.length; i++) {
     cells[i] = {}
     cells[i].datum = data[i];
     cells[i].percent = data[i]/data_total;
@@ -171,7 +184,7 @@ function manualCells(data) {
       height = cells[i].percent/(width/100)*100;
     }
 
-    var colorValue = (255*cells[i].percent).toFixed(0);
+    var colorValue = (190*cells[i].percent+20).toFixed(0);
     var colorRGB = "rgb(" + colorValue + "," + colorValue + "," + colorValue + ")";
     var borderRGB = "rgb(0,0,0)";
 
@@ -182,7 +195,8 @@ function manualCells(data) {
       height + "%",
       colorRGB,
       borderRGB,
-      (cells[i].percent*100).toFixed(1)
+      sorter_array[i].name +" ("+sorter_array[i].value/2 + "h)"
+       // (cells[i].percent*100).toFixed(1) + "%"
     );
 
     //Add appropriate offset
@@ -206,12 +220,14 @@ $.getJSON('/data/books', function(data){
 });
 
 
-$("#arbolade").on('touchstart click',"div",touchCell);
+$("#arbolade").on('touch click',"div",touchCell);
 
 function touchCell() {
   var me = $(this);
   var data = me.data();
   var destAnim;
+
+  // p(data);
 
   if (data.clicked == false) {
     destAnim = {
@@ -229,13 +245,13 @@ function touchCell() {
     }
   }
   // me.css("z-index","2");
-  TweenMax.to(me,0.3,destAnim);
+  TweenMax.to(me,0.1,destAnim);
   if (data.clicked == false) {
     me.data("clicked",true);
     TweenMax.to(me, 0, {zIndex:"1"});
   } else {
     me.data("clicked",false);
-    TweenMax.to(me, 0, {zIndex:"-1", delay:0.3});
+    TweenMax.to(me, 0, {zIndex:"0", delay:0.1});
   }
 }
 

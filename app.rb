@@ -32,7 +32,7 @@ def get_web_auth
 end
 
 def pomsheet
-  if request.host != "192.168.43.72" and request.host != "localhost"
+  if request.host != "192.168.43.72" and request.host != "localhost" and request.host != "192.168.42.250"
     authed?
     client = get_dropbox_client
     @file = client.get_file("2014 Pomodoro.txt")
@@ -53,7 +53,7 @@ get "/" do
   # authed?
   # redirect '/stuff'
   # pomsheet
-  authed?
+  # authed?
   haml :treemap
   # request.host
 end
@@ -89,7 +89,7 @@ end
 get '/data/books' do
   content_type :json
   pom_parser = PomParser.new(pomsheet, last: 40)
-  books_hash = pom_parser.full[:books]
+  books_hash = pom_parser.full[:categories]
   Treemap.new(books_hash).full.to_json
 end
 

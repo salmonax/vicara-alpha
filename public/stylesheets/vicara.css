@@ -125,11 +125,11 @@ body {
 }
 
 #poms {
-  background: rgba(10,10,10,0.3);
-  float: left;
+  /*background: rgba(10,10,10,0.3);*/
+  /*float: left;*/
   margin: 10px;
   padding: 0px 30px 0px 30px;
-  font-size: 7em;
+  font-size: 6em;
 }
 
 #meter {
