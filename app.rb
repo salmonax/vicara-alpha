@@ -1,4 +1,5 @@
 require 'sinatra'
+require 'sinatra/cookies'
 require 'redcarpet'
 require 'dropbox_sdk'
 
@@ -23,6 +24,7 @@ end
 set :session_secret, ENV['SESSION_SECRET']
 
 def authed?
+  session[:dropbox_token] = cookies[:dropbox_token] if cookies[:dropbox_token]
   redirect '/dropbox/auth' if session[:dropbox_token] == nil
 end
 
@@ -53,7 +55,7 @@ get "/" do
   # authed?
   # redirect '/stuff'
   # pomsheet
-  # authed?
+  authed? if request.host != "192.168.42.250"
   haml :android
   # request.host
 end
@@ -78,7 +80,8 @@ get '/dropbox/callback' do
   else
     access_token, user_id, url_state = get_web_auth.finish(params)
     session[:dropbox_token] = access_token
-    redirect to('/stuff')
+    cookies[:dropbox_token] = access_token
+    redirect to('/')
   end
 end
 
@@ -86,10 +89,14 @@ get '/treemap' do
   haml :treemap
 end
 
+get '/cookies' do
+  cookies
+end
+
 get '/data/books' do
   content_type :json
   pom_parser = PomParser.new(pomsheet, last: 40)
-  books_hash = pom_parser.full[:categories]
+  books_hash = pom_parser.full[:categories]["Vicara"]
   Treemap.new(books_hash).full.to_json
 end
 
@@ -126,6 +133,7 @@ get '/weeklies' do
 end
 
 get '/logout' do
+  response.delete_cookie('dropbox_token')
   session["dropbox_session"] = nil
   session["dropbox_token"] = nil
   session["dropbox_auth_csrf_token"] = nil

@@ -154,8 +154,8 @@ poms.yesterday = 2;
 poms.today = 0;
 poms.debt = poms.due-poms.done
 
-// $("#poms.shadow").load("/poms_left");
-$("#poms.shadow").text(pomMeter(poms));
+$("#poms.shadow").load("/poms_left");
+// $("#poms.shadow").text(pomMeter(poms));
 
 var focusData = [
   {target: 5, done: 4},

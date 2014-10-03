@@ -17,7 +17,7 @@ raw_pomsheet = File.read("/home/salmonax/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
 
 pom_parser = PomParser.new(raw_pomsheet)
 
-# pp pom_parser.days
+pp pom_parser.full[:categories]
 # pp pom_parser
 
 meter = Meter.new(pom_parser)

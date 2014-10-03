@@ -5,10 +5,11 @@ group :development do
   gem 'dotenv'
   gem 'rack-livereload'
   gem 'guard-livereload', require: false
-  gem 'sinatra-contrib'
+
 end
 
 gem 'sinatra'
+gem 'sinatra-contrib'
 gem 'json'
 gem 'thin'
 gem 'haml'
