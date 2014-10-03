@@ -54,7 +54,7 @@ get "/" do
   # redirect '/stuff'
   # pomsheet
   # authed?
-  haml :treemap
+  haml :android
   # request.host
 end
 
@@ -171,9 +171,9 @@ __END__
 
 @@ sandbox
 #sandbox.gradient.draggable
-  #logo.square.draggable HELLO
-  #logo2.square HELLO
-  #whatever HELLO
+  /#logo.square.draggable HELLO
+  /#logo2.square HELLO
+  /#whatever HELLO
 
 @@ weeklies
 #android.gradient

@@ -99,7 +99,7 @@ $("#arbolade")
   .css("left",0)
   .css("top",0)
   .css("width","100%")
-  .css("height","100%")
+  .css("height","50%")
   .css("backgroundColor","black")
   .css("box-sizing","border-box")
   .css("border","1px solid black")
@@ -241,17 +241,18 @@ function touchCell() {
       top: data.y,
       left: data.x,
       width: data.w,
-      height: data.h
+      height: data.h,
+      ease:Expo.easeInOut
     }
   }
   // me.css("z-index","2");
-  TweenMax.to(me,0.1,destAnim);
+  TweenMax.to(me,0.2,destAnim);
   if (data.clicked == false) {
     me.data("clicked",true);
     TweenMax.to(me, 0, {zIndex:"1"});
   } else {
     me.data("clicked",false);
-    TweenMax.to(me, 0, {zIndex:"0", delay:0.1});
+    TweenMax.to(me, 0, {zIndex:"0", delay:0.2});
   }
 }
 

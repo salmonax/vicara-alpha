@@ -1,3 +1,7 @@
+function p(whatever) { 
+  $("#output").append(whatever+"<br>")
+}
+
 var start = new Date;
 
 var targets = {
@@ -51,9 +55,12 @@ function fillMeter(container,done,color) {
   $(container + " > .block:lt(" + done + ")").css("background",color); 
 }
 
+var pom_left = (decimalTime()*2).toFixed(0);
+var pom_right = (48-decimalTime()*2).toFixed(0);
+
 function setLeftRight() {
-  $("#pom-left").text((decimalTime()*2).toFixed(0));
-  $("#pom-right").text((48-decimalTime()*2).toFixed(0));
+  $("#pom-left").text(pom_left);
+  $("#pom-right").text(pom_right);
 }
 
 
@@ -133,12 +140,51 @@ function setTwentyFour() {
 //     .style("width", function(d) { return x(d) + "px"; })
 //     .text(function(d) { return d; });
 
+
+
+// BEGIN #sandbox mess
+var poms = {};
+poms.dailies = [9,6,3,2,0];
+poms.target = 8;
+poms.record = 9;
+poms.average = 5; //not including today
+poms.due = 40; //including today
+poms.done = 20; 
+poms.yesterday = 2;
+poms.today = 0;
+poms.debt = poms.due-poms.done
+
+// $("#poms.shadow").load("/poms_left");
+$("#poms.shadow").text(pomMeter(poms));
+
 var focusData = [
   {target: 5, done: 4},
   {target: 10, done: 3},
   {target: 3, done: 1},
   {target: 4, done: 2}
 ]
+
+function pomMeter(poms) {
+  return poms.due-poms.done;
+}
+
+var bars = {};
+bars.yesterday = poms.yesterday; 
+bars.average = poms.average - poms.yesterday;
+bars.target = poms.target - poms.average;
+bars.record = poms.record - poms.target;
+bars.debt = poms.debt - poms.record;
+
+
+var focusData = [
+  {target: bars.yesterday, done: 0},
+  {target: bars.average, done: 0},
+  {target: bars.target, done: 0},
+  {target: bars.record, done: 0},
+  {target: bars.debt, done: 0}
+
+]
+
 
 function randColor() { 
   return +(Math.random() * 200 + 55).toFixed(0);
@@ -152,25 +198,54 @@ function stringRGB(colorObj,offset) {
   return "rgb(" + (colorObj.r+offset) + "," + (colorObj.g+offset) + "," + (colorObj.b+offset) + ")";
 }
 
-d3.select("#sandbox")
-  .append("div").attr("id","meter")
-  .selectAll("div").data(focusData).enter().append("div")
-    .attr("class","meta-block")
-    .style("width",100/focusData.length + "%")
-    .each(function(d) {
-      var color = randRGB();
-      var doneColor = stringRGB(color,50);
-      var baseColor = stringRGB(color);
-      var borderColor = stringRGB(color,-50);
-      for(i=0;i < d.target;i++) {
-        d3.select(this).append("div")
-          .attr("class","block")
-          .style("width",100/d.target + "%")
-          .style("background", i < d.done ? doneColor : baseColor)
-          .style("border","1px solid " + borderColor);
-      }
-    });
-    // .text("HRLLO@")
+var colors = [
+  {r: 200, g: 125, b: 75},
+  {r: 175, g: 175, b: 75},    
+  {r: 50, g: 175, b: 100},
+  {r: 75, g: 125, b: 200},
+  {r: 125, g: 100, b: 200},
+];
+
+function initSandBoxMeter(container) {
+  d3.select(container)
+    .append("div").attr("class","meter")
+    .selectAll("div").data(focusData).enter().append("div")
+      .attr("class","meta-block")
+      .style("width",100/focusData.length + "%")
+      .each(function(d, i) {
+        var color = colors[i];
+        var doneColor = stringRGB(color,50);
+        var baseColor = stringRGB(color);
+        var borderColor = stringRGB(color,-50);
+        for(i=0;i < d.target;i++) {
+          d3.select(this).append("div")
+            .attr("class","block")
+            .style("width",100/d.target + "%")
+            .style("background", i < d.done ? doneColor : baseColor)
+            .style("border","1px solid " + borderColor);
+        }
+      });
+}
+
+function initSandBoxLabels(container) {
+  var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
+  d3.select(container)
+    .append("div").attr("class","meter lil-shadow")
+    .selectAll("div").data(meterLabels).enter().append("div")
+      .attr("class","meta-block")
+      .style("margin-top","5px")
+      .style("width",100/focusData.length + "%")
+      .each(function(d,i) {
+        d3.select(this).style("color",stringRGB(colors[i]));
+        // d3.select(this).css("color","black");
+      })
+      .text(function(d) { return d; });
+}
+
+initSandBoxMeter("#sandbox");
+initSandBoxLabels("#sandbox");
+initSandBoxMeter("#top-half");
+initSandBoxLabels("#top-half");
 
 
 function addStuff() { 
@@ -178,7 +253,6 @@ function addStuff() {
 }
 
 $("#pomsheet-area").load("/stuff");
-$("#poms.shadow").load("/poms_left");
 
 // $(".draggable").draggable();
 // $("#slider").slider({
@@ -229,6 +303,7 @@ function completeHandler(message) {
   $("#whatever").text(message);
 }
 
+//END #sandbox mess
 
 var daily_data = {}
 daily_data.tags = ["R","RR","WW","W",">"];
@@ -285,13 +360,58 @@ function initWeeklies() {
   $('.weekly-days').css
 }
 
-
 initWeeklies();
 
+
+// refactor this
+function initMeterV(container,target,margin) {
+  for (var i = 0; i < target; i++) {
+    $("<div class='vblock'></div>").appendTo(container);
+  }
+  $(container + " > .vblock").css({
+    height: (100/target + "%"),
+    border: "1px solid gray"
+  });
+}
+
+function fillMeterV(container,done,color) {
+  $(container + " > .vblock:lt(" + done + ")").css("background",color); 
+}
+
+//*** dumb meter crap
+
+// $("#top-half").append("<div id=lmeter></div>");
+// $("#top-half").append("<div id=rmeter></div>");
+// $("#rmeter").css({
+//     position: "relative",
+//     top: -90,
+//     float: "right",
+//     height: "80%",
+//     width: "15px",
+//     background: "rgb(150,0,0)"
+//   });
+// $("#lmeter").css({
+//     position: "relative",
+//     top: -90,
+//     float: "left",
+//     height: "80%",
+//     width: "15px",
+//     background: "black"
+//   });
+
+
+// initMeterV("#rmeter",poms.debt,allMargin);
+// fillMeterV("#rmeter",0,"rgb(100,100,100)");
+
+// initMeterV("#lmeter",10,allMargin);
+// fillMeterV("#lmeter",0,"rgb(100,100,100)");
+
 Draggable.create(".peg", {type:"x,y", edgeResistance:1, bounds: ".slider"});
-
-
 Draggable.create("#button-start", {type:"x,y"});
 
-
 // jeeZap();
+
+
+
+
+

@@ -127,20 +127,23 @@ body {
 #poms {
   /*background: rgba(10,10,10,0.3);*/
   /*float: left;*/
-  margin: 10px;
+  margin: 5px;
   padding: 0px 30px 0px 30px;
   font-size: 6em;
 }
 
-#meter {
+.meter {
   margin: auto;
-  background: rgb(100,100,100);
+  /*background: rgb(100,100,100);*/
   width: 90%;
   height: 12px;
 }
 
 #first, #second, #third, .meta-block {
   color: rgb(150,150,150);
+  text-align: center;
+  font-size: 0.75em;
+  font-family: sans-serif;
   float: left;
   margin: auto;
   width: 33.33%;
@@ -167,19 +170,24 @@ body {
   border: 1px solid rgb(70,70,100);
 }
 
-.block {
+.block, .vblock {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   border-style: solid;
-  float: left;
   height: 100%;
   opacity: 1;
 }
+
+.block { float: left; }
 
 
 /*Goofy effects*/
 .shadow {
   text-shadow: 6px 6px 10px rgba(0, 0, 0, 0.3);
+}
+
+.lil-shadow {
+  text-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2); 
 }
 
 #android.gradient, .gradient { 
