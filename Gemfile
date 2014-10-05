@@ -10,6 +10,7 @@ end
 
 gem 'sinatra'
 gem 'sinatra-contrib'
+gem 'async_sinatra'
 gem 'json'
 gem 'thin'
 gem 'haml'

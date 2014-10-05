@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'sinatra/cookies'
+require 'sinatra/async'
 require 'redcarpet'
 require 'dropbox_sdk'
 
@@ -22,6 +23,8 @@ configure do
 end 
 
 set :session_secret, ENV['SESSION_SECRET']
+
+register Sinatra::Async
 
 def authed?
   session[:dropbox_token] = cookies[:dropbox_token] if cookies[:dropbox_token]
@@ -73,7 +76,6 @@ get '/dropbox/auth' do
   redirect authorize_url
 end
 
-
 get '/dropbox/callback' do
   if params['error'] || !params['state']
     redirect '/dropbox/auth'
@@ -84,6 +86,60 @@ get '/dropbox/callback' do
     redirect to('/')
   end
 end
+
+get '/dropbox/webhook/?' do
+  puts params
+  params['challenge']
+end
+
+connections = []
+
+get '/consume', provides: 'text/event-stream' do
+  stream(:keep_open) do |out|
+    # store connection for later on
+    connections << out
+    # remove connection when closed properly
+    out.callback { connections.delete(out) }
+    # remove connection when closed due to an error
+    out.errback do
+      logger.warn 'we just lost a connection!'
+      connections.delete(out)
+    end
+  end
+end
+
+get '/broadcast/:message' do
+  connections.each do |out| 
+    out << "data: #{params[:message]}\n\n"
+    # out.close
+  end
+  "Sent #{params[:message]} to all clients."
+end
+
+
+post '/dropbox/webhook/?' do
+  changes = request.body.read
+  if session[:dropbox_token]
+    puts "Signed in!"
+    client = DropboxClient.new(session[:dropbox_token])
+    puts client.account_info().inspect
+  else
+    puts "No token; not logged in!"
+    puts session.inspect
+  end
+  connections.each do |out| 
+      out << "data: #{changes}\n\n"
+  end
+  nil
+end
+
+aget '/eventmachine' do
+    # EM.add_timer(10) { body { "delayed for 4 seconds" } }
+    big_job = proc { sleep 5 }
+    result = proc { body { 'Hello!' } }
+    EM.defer big_job, result
+end
+
 
 get '/treemap' do
   haml :treemap
@@ -96,7 +152,7 @@ end
 get '/data/books' do
   content_type :json
   pom_parser = PomParser.new(pomsheet, last: 40)
-  books_hash = pom_parser.full[:categories]["Vicara"]
+  books_hash = pom_parser.full[:books]
   Treemap.new(books_hash).full.to_json
 end
 

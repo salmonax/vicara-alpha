@@ -31,9 +31,9 @@ setInterval(function() {
 }, 1000);
 
 // This is awful; temporary. Long-poll or whatever will take care of crap like this.
-setInterval(function() {
-    setTwentyFour();
-}, 10000);
+// setInterval(function() {
+//     setTwentyFour();
+// }, 10000);
 
 function decimalTime() {
   var d = new Date();
@@ -87,6 +87,10 @@ function fillTwentyFour(data,color) {
   }
 }
 
+function clearTwentyFour() {
+  $("#twenty-four > .block").css("background","rgb(40,40,40)");
+}
+
 function setTwentyFour() {
   $.getJSON('/today', function(data){
     fillTwentyFour(data,"rgb(150,150,150");
@@ -124,6 +128,34 @@ function setTwentyFour() {
 //   });
 // }
 // worker();
+
+// function updateOnFileChange() { 
+//   window.location.reload();
+// }
+
+// function worker() {
+//   $.ajax({
+//     url: '/consume',
+//     success: function(data) { 
+//       p(data);
+//     },
+//     complete: function() {
+//       setTimeout(worker,100);
+//     }
+//   });
+// }
+// setTimeout(worker,100);
+
+function updateOnDropboxWebhook() {
+  clearTwentyFour();
+  setTwentyFour();
+  $("#poms.shadow").load("/poms_left");
+}
+
+var es = new EventSource('/consume');
+es.onmessage = function(e) { 
+  updateOnDropboxWebhook();
+};
 
 // var data = [4, 8, 15, 16, 23, 42];
 
@@ -405,6 +437,8 @@ function fillMeterV(container,done,color) {
 
 // initMeterV("#lmeter",10,allMargin);
 // fillMeterV("#lmeter",0,"rgb(100,100,100)");
+
+
 
 Draggable.create(".peg", {type:"x,y", edgeResistance:1, bounds: ".slider"});
 Draggable.create("#button-start", {type:"x,y"});
