@@ -58,7 +58,7 @@ get "/" do
   # authed?
   # redirect '/stuff'
   # pomsheet
-  authed? if request.host != "192.168.42.250"
+  authed? if request.host != "192.168.42.250" and request.host != "localhost"
   haml :android
   # request.host
 end
@@ -116,6 +116,19 @@ get '/broadcast/:message' do
   "Sent #{params[:message]} to all clients."
 end
 
+post '/timer/start/?' do
+  connections.each do |out| 
+    out << "data: start_timer\n\n"
+    # out.close
+  end
+  "Sent #{params[:message]} to all clients."
+end
+
+post '/timer/stop/?' do
+  connections.each do |out|
+    out << "data: stop_timer\n\n"
+  end
+end
 
 post '/dropbox/webhook/?' do
   changes = request.body.read
@@ -128,7 +141,7 @@ post '/dropbox/webhook/?' do
     puts session.inspect
   end
   connections.each do |out| 
-      out << "data: #{changes}\n\n"
+      out << "data: update_dropbox"
   end
   nil
 end
@@ -152,7 +165,7 @@ end
 get '/data/books' do
   content_type :json
   pom_parser = PomParser.new(pomsheet, last: 40)
-  books_hash = pom_parser.full[:books]
+  books_hash = pom_parser.full[:categories]["Vicara"]
   Treemap.new(books_hash).full.to_json
 end
 

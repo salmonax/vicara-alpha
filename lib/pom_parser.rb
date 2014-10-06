@@ -4,7 +4,7 @@
 # require 'date'
 
 class PomParser
-  attr_reader :tasks, :days, :full, :total, :jots, :tag_labels, :targets, :today
+  attr_reader :tasks, :days, :full, :total, :jots, :tag_labels, :targets, :today, :stats
 
   # def initialize(f,range={})
   def initialize(raw_pomsheet,range={})
@@ -16,6 +16,7 @@ class PomParser
     @details_today = []
     @range = range
     @days = {}
+    @stats = []
     @full = { tags: {}, categories: {}, books: {}, sum: 0 }
     @total = 0 
     @jots = {}
@@ -58,7 +59,7 @@ class PomParser
       next if skippable?(line)
       break if breakable?(line)
       if is_date?(line) #set date on each date line
-        # pp line
+        
         current_date = line
         current_strptime = DateTime.strptime(current_date,'%m/%d/%Y')
         
@@ -216,7 +217,6 @@ class PomParser
     tag_totals_hash = @days[current_date][:tags]
     category_totals_hash = @days[current_date][:categories]
     @days[current_date][:poms] += task_poms #tally all task poms
-
     task.properties[:tags].each do |tag|
       # Replace commented to eliminate labels
       tag_branch_label = get_label(tag[0])

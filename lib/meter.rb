@@ -1,5 +1,5 @@
 class Meter
-  attr_reader :days_passed, :this_month
+  attr_reader :days_passed, :this_month, :stats
   def initialize(parser)
     @parser = parser
     @days_passed = Time.now.day
@@ -20,5 +20,18 @@ class Meter
       end
     end
     sum
+  end
+
+  def stats
+    # if current_date != ""
+    #   stats_today = {}
+    #   stats_today[:date] = current_date
+    #   stats_today[:poms] = @days[current_date][:poms]
+      
+    #   this_month = Time.now.strftime("%B")
+    #   stats_today[:target] = @targets[:months][this_month]
+
+    #   @stats.push stats_today
+    # end
   end
 end

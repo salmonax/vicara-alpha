@@ -153,9 +153,52 @@ function updateOnDropboxWebhook() {
 }
 
 var es = new EventSource('/consume');
-es.onmessage = function(e) { 
-  updateOnDropboxWebhook();
+es.onmessage = function(e) {
+  if (e.data == "update_dropbox") {
+    p("Dropbox updated!");
+    updateOnDropboxWebhook();
+  } else if (e.data == "start_timer") {
+      startClock();
+    // p("EventSource Start!!!");
+  } else if (e.data == "stop_timer") {
+      stopClock();
+    // p("EventSource Stop!!!!");
+  }
 };
+
+$('#top-half').data({
+  clicked: false
+});
+
+function postClockStart() { $.post("/timer/start"); }
+function postClockStop() { $.post("/timer/stop"); }
+
+function toggleClock() {
+  var data = $("#top-half").data();
+  if (data.clicked == false) {
+    // p("starting");
+    postClockStart();
+    // startClock();
+    // TweenMax.to(me,0.4,{"left": "100%"});
+  } else {
+    postClockStop();
+    // stopClock();
+    // TweenMax.to(me,0.4,{"left": "0%"});
+  }
+}
+
+function startClock() {
+  $("#top-half").data("clicked",true);
+  $("#top-half").css({"background": "rgb(0,0,0"});
+}
+function stopClock() {
+  $("#top-half").data("clicked",false);
+  $("#top-half").css({"background": "transparent"});
+}
+
+$("#top-half").on("touch click",toggleClock);
+
+
 
 // var data = [4, 8, 15, 16, 23, 42];
 
@@ -217,6 +260,13 @@ var focusData = [
 
 ]
 
+function k(object) {
+  pom_props = Object.keys(object)
+  for (var i = 0; i < pom_props.length; i++) {
+    p(pom_props[i] + ": " + object[pom_props[i]]);
+  }
+}
+// k(bars);
 
 function randColor() { 
   return +(Math.random() * 200 + 55).toFixed(0);
@@ -437,7 +487,6 @@ function fillMeterV(container,done,color) {
 
 // initMeterV("#lmeter",10,allMargin);
 // fillMeterV("#lmeter",0,"rgb(100,100,100)");
-
 
 
 Draggable.create(".peg", {type:"x,y", edgeResistance:1, bounds: ".slider"});

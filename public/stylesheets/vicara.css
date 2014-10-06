@@ -127,9 +127,10 @@ body {
 #poms {
   /*background: rgba(10,10,10,0.3);*/
   /*float: left;*/
-  margin: 5px;
+  margin: 0px;
   padding: 0px 30px 0px 30px;
   font-size: 6em;
+  height: 1.15em;
 }
 
 .meter {
@@ -202,6 +203,12 @@ body {
 }
 
 /* Clear Fix */
+
+#dash {
+  position: relative;
+  background: black;
+  height: 100%;
+}
 
 .container:after {
   content:"";

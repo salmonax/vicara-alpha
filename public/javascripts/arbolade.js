@@ -184,7 +184,7 @@ function manualCells(data) {
       height = cells[i].percent/(width/100)*100;
     }
 
-    var colorValue = (190*cells[i].percent+20).toFixed(0);
+    var colorValue = (80*cells[i].percent+30).toFixed(0);
     var colorRGB = "rgb(" + colorValue + "," + colorValue + "," + colorValue + ")";
     var borderRGB = "rgb(0,0,0)";
 
