@@ -9,12 +9,14 @@ body {
 }
 
 #weeklies {
+  font-size: 0.8em;
   background: black;
   width: 100%;
 }
 
 #output { 
   text-align: left;
+  color: white;
 }
 
 .weekly-days { 
@@ -22,15 +24,16 @@ body {
   -moz-box-sizing: border-box;
   border: solid;
   float: left;
-  border-width: 2px;
+  border-width: 1px;
   background: rgb(0,40,80);
-  opacity: 0.4;
+  opacity: 01;
 }
 
 .weekly-header {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   border: solid;
+  border-width: 1px;
   float: left;
 }
 

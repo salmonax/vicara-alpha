@@ -1,6 +1,9 @@
 function p(whatever) { 
   $("#output").append(whatever+"<br>")
 }
+function r(whatever) {
+  $("#output").text(whatever);
+}
 
 var start = new Date;
 
@@ -154,8 +157,9 @@ function updateOnDropboxWebhook() {
 
 var es = new EventSource('/consume');
 es.onmessage = function(e) {
+  // p("message:" + e.data);
   if (e.data == "update_dropbox") {
-    p("Dropbox updated!");
+    // p("Dropbox updated!");
     updateOnDropboxWebhook();
   } else if (e.data == "start_timer") {
       startClock();
@@ -163,6 +167,8 @@ es.onmessage = function(e) {
   } else if (e.data == "stop_timer") {
       stopClock();
     // p("EventSource Stop!!!!");
+  } else {
+    // p(e.data);
   }
 };
 
@@ -187,13 +193,26 @@ function toggleClock() {
   }
 }
 
+var clockTimerID, lastStartTime;
+
 function startClock() {
   $("#top-half").data("clicked",true);
   $("#top-half").css({"background": "rgb(0,0,0"});
+  lastStartTime = new Date();
+  clockTimerID = setInterval(function () { 
+    var now = new Date();
+    elapsed_minutes = now.getMinutes()-lastStartTime.getMinutes();
+    elapsed_seconds = now.getSeconds()-lastStartTime.getSeconds();
+
+    // var elapsed = now-lastStartTime;
+    var seconds_in_pom = 25*60;
+    r(elapsed_minutes + ":" + elapsed_seconds);
+  },1000)
 }
 function stopClock() {
   $("#top-half").data("clicked",false);
   $("#top-half").css({"background": "transparent"});
+  clearInterval(clockTimerID);
 }
 
 $("#top-half").on("touch click",toggleClock);
@@ -423,26 +442,34 @@ $("#category-buttons > .tag-button").on("touchstart click", function() {
 });
 
 
-function initWeeklies() {
-  for (i = 0; i < 14; i++) { 
-    $('#weeklies').append("<div class = weekly-header>" + (i+1) + " </div>");
+function initWeeklies(day_of_month) {
+  day_of_week = (day_of_month-1)%7+1;
+  // p(day_of_week);
+  // p(day_of_month);
+  for (i = 0; i < 7; i++) {
+    $('#weeklies').append("<div class = weekly-header>" + i + " </div>");
+    // if ((days_of_week-1) == i) {
+    //   $("#weeklies > .weekly-head:nth-child(" + i")").css("background","white");
+    // }
   }
 
-  for (i = 0; i < 14; i++) {
+  for (i = 0; i < 7; i++) {
     $('#weeklies').append("<div class = weekly-days></div>");
   }
 
-  $('.weekly-header').css("width",100/14 + "%");
-  $('.weekly-days').css("width",100/14 + "%");
+  $('.weekly-header').css("width",100/7 + "%");
+  $('.weekly-days').css("width",100/7 + "%");
 
-  for (j = 0; j < 24; j++) {
+  for (j = 0; j < 48; j++) {
     $('.weekly-days').append("<div class = weekly-hour>" + j + " </div>");
   }
 
   $('.weekly-days').css
 }
 
-initWeeklies();
+initWeeklies(7);
+
+
 
 
 // refactor this

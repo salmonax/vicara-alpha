@@ -58,7 +58,7 @@ get "/" do
   # authed?
   # redirect '/stuff'
   # pomsheet
-  authed? if request.host != "192.168.42.250" and request.host != "localhost"
+  authed? if request.host != "192.168.42.250" and request.host != "localhost" and request.host != "192.168.43.72"
   haml :android
   # request.host
 end
@@ -130,19 +130,25 @@ post '/timer/stop/?' do
   end
 end
 
+def verify_dropbox_notification
+  #hmac stuff goes here
+end
+
 post '/dropbox/webhook/?' do
-  changes = request.body.read
-  if session[:dropbox_token]
-    puts "Signed in!"
-    client = DropboxClient.new(session[:dropbox_token])
-    puts client.account_info().inspect
-  else
-    puts "No token; not logged in!"
-    puts session.inspect
+  verify_dropbox_notification
+  connections.each do |out|
+    #needs user-specific code
+    out << "data: update_dropbox\n\n"
   end
-  connections.each do |out| 
-      out << "data: update_dropbox"
-  end
+  # changes = request.body.read
+  # if session[:dropbox_token]
+    # puts "Signed in!"
+    # client = DropboxClient.new(session[:dropbox_token])
+    # puts client.account_info().inspect
+  # else
+    # puts "No token; not logged in!"
+    # puts session.inspect
+    # puts changes
   nil
 end
 
@@ -165,7 +171,7 @@ end
 get '/data/books' do
   content_type :json
   pom_parser = PomParser.new(pomsheet, last: 40)
-  books_hash = pom_parser.full[:categories]["Vicara"]
+  books_hash = pom_parser.full[:categories]
   Treemap.new(books_hash).full.to_json
 end
 
@@ -253,6 +259,7 @@ __END__
   /#whatever HELLO
 
 @@ weeklies
+#output
 #android.gradient
   #weeklies.container
 

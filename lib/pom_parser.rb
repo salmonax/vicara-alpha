@@ -102,9 +102,9 @@ class PomParser
 
   def add_details_today(current_date,task)
     if current_date == @date_today
-      @time_and_poms = { "time" => task.entry_time.to_f,
+      time_and_poms = { "time" => task.entry_time.to_f,
                          "poms" => task.poms.to_f }
-      @details_today << @time_and_poms
+      @details_today << time_and_poms
     end
   end
 
