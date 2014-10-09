@@ -1,11 +1,15 @@
 class Meter
-  attr_reader :days_passed, :this_month, :stats
+  attr_reader :days_passed, :this_month, :stats, :target_this_month
   def initialize(parser)
     @parser = parser
-    @days_passed = Time.now.day
-    @this_month = Time.now.strftime("%B")
+    @days_passed = california_now.day
+    @this_month = california_now.strftime("%B")
     @target_this_month = @parser.targets[:months][@this_month]
 
+  end
+
+  def california_now
+    Time.now.utc.getlocal("-07:00")
   end
 
   def poms_left

@@ -11,7 +11,8 @@ class PomParser
     @raw_pomsheet = raw_pomsheet
     # @file = f
     @tasks = []
-    @date_today = Date.today.strftime('%-m/%-d/%Y')
+    # @date_today = Date.today.strftime('%-m/%-d/%Y')
+    @date_today = Time.now.utc.getlocal("-07:00").strftime('%-m/%-d/%Y')
     # @date_today = "9/21/2014"
     @details_today = []
     @range = range
