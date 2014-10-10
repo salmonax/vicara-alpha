@@ -6,6 +6,7 @@ require 'dropbox_sdk'
 
 require 'date'
 require 'json'
+require 'stringio'
 require './lib/meter.rb'
 require './lib/modules/hash_magic.rb'
 require './lib/task.rb'
@@ -53,6 +54,11 @@ def get_dropbox_client
 end
 
 # "#{@env['rack.url_scheme']}://#{request.host_with_port}/login"
+
+before do 
+  # pp request.host
+  redirect "https://#{request.host_with_port}#{request.path}" unless request.host == "localhost"
+end
 
 get "/" do 
   # authed?
@@ -106,6 +112,29 @@ get '/consume', provides: 'text/event-stream' do
       connections.delete(out)
     end
   end
+end
+
+get '/test/:message' do
+    content_type :text
+    authed?
+    client = get_dropbox_client
+    file = StringIO.new(params[:message])
+    # old_file = StringIO.new(client.get_file('/hello.txt'))
+
+    # old_file.puts params[:message]
+    begin
+      existing = client.get_file('/hello.txt')
+    rescue
+      existing = ""
+    end
+    existing = existing + "\n\n#{params[:message]}"
+
+    new_file = StringIO.new(existing)
+    # last_file.puts params[:message]
+    client.put_file('/hello.txt',new_file,true)
+    client.get_file('/hello.txt')
+    # params[:message]
+    # last_file.class.to_s
 end
 
 get '/broadcast/:message' do
@@ -170,8 +199,8 @@ end
 
 get '/data/books' do
   content_type :json
-  pom_parser = PomParser.new(pomsheet, last: 40)
-  books_hash = pom_parser.full[:categories]
+  pom_parser = PomParser.new(pomsheet, last: 100)
+  books_hash = pom_parser.full[:categories]["Vicara"]
   Treemap.new(books_hash).full.to_json
 end
 
@@ -182,6 +211,14 @@ get "/poms_left" do
   pom_parser = PomParser.new(raw_pomsheet)
   meter = Meter.new(pom_parser)
   "#{meter.poms_left}"
+end
+
+get "/stats_today" do
+  content_type :json
+  raw_pomsheet = pomsheet
+  pom_parser = PomParser.new(raw_pomsheet)
+  meter = Meter.new(pom_parser)
+  meter.stats[-1].to_json
 end
 
 get "/today" do

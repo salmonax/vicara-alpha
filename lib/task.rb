@@ -35,7 +35,7 @@ class Task
     else
       tags = 'None'
     end
-    poms = task.pop.gsub(%r{\(|\)},'').length
+    poms = task.pop.gsub(%r{\(|\)|\[|\]},'').length
     pom_time = poms/2.0
     end_time = make_time_string(time_num_float+pom_time)
     task = task.join(' ').split(': ')

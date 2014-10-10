@@ -28,9 +28,44 @@ class PomParser
     @abbreviations = {}
     @category_schema = {}
     build_tasks
+    fill_days
   end
 
   include HashMagic
+
+  def california_now
+    Time.now.utc.getlocal("-07:00")
+  end
+
+  def fill_days
+    last_given_date = nil
+    empty_date = {
+      output: 0, 
+      poms: 0, 
+      tags: {"None" => 0}, 
+      categories: {"None" => 0}
+    }
+    @days.keys.reverse.each do |date_today|
+        terms = date_today.split('/').map { |e| e.to_i }
+        today_date = Date.new(terms[2],terms[0],terms[1])
+      if last_given_date
+        yesterday_date = today_date-1
+        if yesterday_date != last_given_date
+          (today_date-last_given_date-1).to_i.times do |offset|
+            new_string_date = (last_given_date+offset+1).strftime('%-m/%-d/%Y')
+            @days[new_string_date] = empty_date
+          end
+        end
+      end
+      last_given_date = today_date
+    end
+    days_since_last = (california_now.to_date-last_given_date).to_i
+    # pp last_given_date.strftime('%-m/%-d/%Y')
+    days_since_last.times do |last_date_offset|
+      new_date = (last_given_date+1).strftime('%-m/%-d/%Y')
+      @days[new_date] = empty_date
+    end
+  end
 
   def full(range=@range)
     range[:start] = DateTime.new if !range[:start]

@@ -99,8 +99,14 @@ function setTwentyFour() {
     fillTwentyFour(data,"rgb(150,150,150");
   });
 }
-
  setTwentyFour();
+
+ function getStats() { 
+  $.getJSON('/stats_today', function(data){
+    k(data);
+  })
+ }
+ getStats();
 
 // var entry_times = '[{"time":1.0,"poms":1.0}]';
 // fillTwentyFour(entry_times,"rgb(150,150,150");
