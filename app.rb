@@ -57,7 +57,10 @@ end
 
 before do 
   # pp request.host
-  redirect "https://#{request.host_with_port}#{request.path}" unless request.host == "localhost"
+  puts request.methods-Object.methods
+  if !request.ssl? and request.host != "localhost"
+    redirect "https://#{request.host_with_port}#{request.path}"
+  end
 end
 
 get "/" do 
