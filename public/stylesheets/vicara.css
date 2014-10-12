@@ -13,6 +13,14 @@ body {
   background: black;
   width: 100%;
 }
+/* this is the laziest chunk */
+#connection {
+  left: 10px;
+  height: 0;
+  position: relative;
+  top: -30px;
+  text-align: left;
+}
 
 #stats {
   margin: auto;

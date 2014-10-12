@@ -156,6 +156,7 @@ function updateOnDropboxWebhook() {
 }
 
 var es = new EventSource('/consume');
+// postClockStop();
 es.onmessage = function(e) {
   // p("message:" + e.data);
   if (e.data == "update_dropbox") {
@@ -171,6 +172,26 @@ es.onmessage = function(e) {
     // p(e.data);
   }
 };
+setInterval(function (){
+  updateConnectionDisplay();
+},1000);
+
+// $(document).ready(function () {
+//   // postClockStop();
+//   p("fuck!");
+// })
+
+function updateConnectionDisplay() {
+  if (es.readyState == 1)
+    $("#connection").text("EventStream Connected")
+      .css("color","green");
+
+  else {
+    $("#connection").text("EventStream Disconnected")
+      .css("color","red");
+  }
+}
+
 
 $('#top-half').data({
   clicked: false
@@ -269,7 +290,7 @@ function pStats() {
     p(sorted_stats[label] + ": " + stats[sorted_stats[label]]);
   }
 }
-pStats();
+// pStats();
   // focusData = [
   //   {target: 10, done: 10},
   //   {target: 4, done: 5}

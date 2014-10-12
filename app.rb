@@ -104,6 +104,8 @@ connections = []
 
 get '/consume', provides: 'text/event-stream' do
   stream(:keep_open) do |out|
+    out << "data: opened"
+    EventMachine::PeriodicTimer.new(20) { out << "data: \n\n" }
     # store connection for later on
     connections << out
     # remove connection when closed properly
