@@ -101,12 +101,6 @@ function setTwentyFour() {
 }
  setTwentyFour();
 
- function getStats() { 
-  $.getJSON('/stats_today', function(data){
-    k(data);
-  })
- }
- getStats();
 
 // var entry_times = '[{"time":1.0,"poms":1.0}]';
 // fillTwentyFour(entry_times,"rgb(150,150,150");
@@ -243,6 +237,51 @@ $("#top-half").on("touch click",toggleClock);
 
 
 // BEGIN #sandbox mess
+function getStats() { 
+  $.getJSON('/stats_today', function(data) { 
+    buildFocusData(data);
+    // k(data);
+  });
+}
+getStats();
+
+function buildFocusData(stats) {
+  poms_today = stats["today"];
+  delete stats["date"];
+  delete stats["today"];
+  var sorted_stats = Object.keys(stats).sort(function(a,b) {
+    return stats[a]-stats[b];
+  });
+  var focusData = [];
+
+  for (index in sorted_stats) {
+    var label = sorted_stats[index];
+    focusData.push({
+      // label: label[0].toUpperCase() + label.split(1),
+      target: stats[label],
+      done: poms_today
+    })
+  }
+
+function pStats() {
+  p("today: " + poms_today);
+  for (label in sorted_stats) {
+    p(sorted_stats[label] + ": " + stats[sorted_stats[label]]);
+  }
+}
+pStats();
+  // focusData = [
+  //   {target: 10, done: 10},
+  //   {target: 4, done: 5}
+  // ]
+
+
+  initSandBoxMeter("#top-half",focusData);
+  initSandBoxLabels("#top-half",focusData,sorted_stats);
+
+  // return focusData;
+}
+
 var poms = {};
 poms.dailies = [9,6,3,2,0];
 poms.target = 8;
@@ -313,12 +352,12 @@ var colors = [
   {r: 125, g: 100, b: 200},
 ];
 
-function initSandBoxMeter(container) {
+function initSandBoxMeter(container,data) {
   d3.select(container)
     .append("div").attr("class","meter")
-    .selectAll("div").data(focusData).enter().append("div")
+    .selectAll("div").data(data).enter().append("div")
       .attr("class","meta-block")
-      .style("width",100/focusData.length + "%")
+      .style("width",100/data.length + "%")
       .each(function(d, i) {
         var color = colors[i];
         var doneColor = stringRGB(color,50);
@@ -334,25 +373,26 @@ function initSandBoxMeter(container) {
       });
 }
 
-function initSandBoxLabels(container) {
-  var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
+function initSandBoxLabels(container,data,labels) {
+  // var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
   d3.select(container)
     .append("div").attr("class","meter lil-shadow")
-    .selectAll("div").data(meterLabels).enter().append("div")
+    .selectAll("div").data(labels).enter().append("div")
       .attr("class","meta-block")
       .style("margin-top","5px")
-      .style("width",100/focusData.length + "%")
+      .style("width",100/data.length + "%")
       .each(function(d,i) {
         d3.select(this).style("color",stringRGB(colors[i]));
         // d3.select(this).css("color","black");
       })
-      .text(function(d) { return d; });
+      .text(function(d) { return d[0].toUpperCase()+d.slice(1); });
 }
 
-initSandBoxMeter("#sandbox");
-initSandBoxLabels("#sandbox");
-initSandBoxMeter("#top-half");
-initSandBoxLabels("#top-half");
+var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
+initSandBoxMeter("#sandbox",focusData);
+initSandBoxLabels("#sandbox",focusData,meterLabels);
+// initSandBoxMeter("#top-half",focusData);
+// initSandBoxLabels("#top-half",focusData);
 
 
 function addStuff() { 

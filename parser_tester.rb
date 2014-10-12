@@ -21,6 +21,6 @@ pom_parser = PomParser.new(raw_pomsheet)
 # pp pom_parser
 
 meter = Meter.new(pom_parser)
-pp meter.stats
+pp meter.stats.reverse
 # pp meter.poms_left
 # pp meter.poms_this_month

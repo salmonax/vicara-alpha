@@ -57,8 +57,7 @@ end
 
 before do 
   # pp request.host
-  puts request.methods-Object.methods
-  if !request.ssl? and request.host != "localhost"
+  if !request.ssl? and request.host != "localhost" and request.host != "192.168.42.250"
     redirect "https://#{request.host_with_port}#{request.path}"
   end
 end
@@ -202,7 +201,7 @@ end
 
 get '/data/books' do
   content_type :json
-  pom_parser = PomParser.new(pomsheet, last: 100)
+  pom_parser = PomParser.new(pomsheet, last: 40)
   books_hash = pom_parser.full[:categories]["Vicara"]
   Treemap.new(books_hash).full.to_json
 end

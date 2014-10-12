@@ -99,11 +99,13 @@ $("#arbolade")
   .css("left",0)
   .css("top",0)
   .css("width","100%")
-  .css("height","50%")
+  .css("height","100%")
   .css("backgroundColor","black")
   .css("box-sizing","border-box")
   .css("border","1px solid black")
   .css("opacity","0.7");
+$("#top-half + #arbolade")
+  .css("height","50%");
 
 function rectangle(x,y,w,h,color,border,text) {
   var n = $("#arbolade > div").length;
@@ -175,11 +177,29 @@ function manualCells(data) {
   var width = 0, height = 0;
 
   for (var i = 0; i < data.length; i++) {
-    if (i%2 == 0) { 
+    // var height_v = 100.0 - offset.y;
+    // var width_v = cells[i].percent/(height_v/100)*100;
+    // var ratio_v = height_v/width_v
+
+    // var width_h = 100.0 - offset.x;
+    // var height_h = cells[i].percent/(width_h/100)*100;
+    // var ratio_h = width_h/height_h;
+
+    // var horizontal = (ratio_v <= ratio_h) ? 0 : 1;
+    // p(horizontal);
+
+    // var which = "";
+
+    var even = (i%2 == 0)
+
+    if (even) {
+      // which = "vertical";
       height = 100.0 - offset.y;
       width = cells[i].percent/(height/100)*100;
     }
-    else { 
+    else {
+      // p(horizontal);
+      // which = "horizontal"; 
       width = 100.0 - offset.x;
       height = cells[i].percent/(width/100)*100;
     }
@@ -188,6 +208,8 @@ function manualCells(data) {
     var colorRGB = "rgb(" + colorValue + "," + colorValue + "," + colorValue + ")";
     var borderRGB = "rgb(0,0,0)";
 
+    var label = sorter_array[i].name +" ("+sorter_array[i].value/2 + "h)";
+
     rectangle(
       offset.x + "%",
       offset.y + "%",
@@ -195,18 +217,18 @@ function manualCells(data) {
       height + "%",
       colorRGB,
       borderRGB,
-      sorter_array[i].name +" ("+sorter_array[i].value/2 + "h)"
+      // "v: " + ratio_v + " " + "h: " + ratio_h + "horizontal?: " + horizontal + " chosen: " + which 
+      label
        // (cells[i].percent*100).toFixed(1) + "%"
     );
 
     //Add appropriate offset
-    if (i%2 == 0) {
+    if (even) {
       offset.x += parseFloat(width);
     }
     else {
       offset.y += parseFloat(height);
     }
-
   }
 
 }
