@@ -104,7 +104,7 @@ $("#arbolade")
   .css("box-sizing","border-box")
   .css("border","1px solid black")
   .css("opacity","0.7");
-$("#top-half + #arbolade")
+$("#connection + #arbolade")
   .css("height","50%");
 
 function rectangle(x,y,w,h,color,border,text) {

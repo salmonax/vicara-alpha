@@ -1,8 +1,18 @@
+setInterval(function (){
+  updateConnectionDisplay();
+},1000);
+
 function p(whatever) { 
   $("#output").append(whatever+"<br>")
 }
 function r(whatever) {
   $("#output").text(whatever);
+}
+function k(object) {
+  pom_props = Object.keys(object)
+  for (var i = 0; i < pom_props.length; i++) {
+    p(pom_props[i] + ": " + object[pom_props[i]]);
+  }
 }
 
 var start = new Date;
@@ -33,11 +43,6 @@ setInterval(function() {
     setLeftRight();
 }, 1000);
 
-// This is awful; temporary. Long-poll or whatever will take care of crap like this.
-// setInterval(function() {
-//     setTwentyFour();
-// }, 10000);
-
 function decimalTime() {
   var d = new Date();
   var decimal_time = d.getHours() + (d.getMinutes()+(d.getSeconds()/60))/60;
@@ -66,8 +71,6 @@ function setLeftRight() {
   $("#pom-right").text(pom_right);
 }
 
-
-
 var allMargin = 0;
 
 setTimeMarkerPosition();
@@ -81,9 +84,12 @@ fillMeter("#third",done.third,"rgb(120,120,150");
 
 initMeter("#twenty-four",48,allMargin);
 
+// $("#twenty-four > .block").css("background","white");
+
 function fillTwentyFour(data,color) {
   for (i = 0; i < data.length; i++) {
-    // Inner loops subtracts position for extra poms. Needs check for under 0, over 48
+    // Inner loops subtracts position for extra poms.
+    // Should probably check for under 0, over 48
     for (j = 0; j < data[i].poms; j++) { 
       $("#twenty-four > .block:nth-child(" + (data[i].time*2-j) +")").css("background",color);
     }
@@ -100,17 +106,6 @@ function setTwentyFour() {
   });
 }
  setTwentyFour();
-
-
-// var entry_times = '[{"time":1.0,"poms":1.0}]';
-// fillTwentyFour(entry_times,"rgb(150,150,150");
-
-
-
-
-// setMeterMargin(allMargin);
-
-
 
 // setInterval(function(){
 //   $("#bottom-half").text("Width: " + window.innerWidth);
@@ -172,16 +167,15 @@ es.onmessage = function(e) {
     // p(e.data);
   }
 };
-setInterval(function (){
-  updateConnectionDisplay();
-},1000);
 
+// updateConnectionDisplay();
 // $(document).ready(function () {
 //   // postClockStop();
 //   p("fuck!");
 // })
 
 function updateConnectionDisplay() {
+  // p("HELLO");
   if (es.readyState == 1)
     $("#connection").text("EventStream Connected")
       .css("color","green");
@@ -203,14 +197,9 @@ function postClockStop() { $.post("/timer/stop"); }
 function toggleClock() {
   var data = $("#top-half").data();
   if (data.clicked == false) {
-    // p("starting");
     postClockStart();
-    // startClock();
-    // TweenMax.to(me,0.4,{"left": "100%"});
   } else {
     postClockStop();
-    // stopClock();
-    // TweenMax.to(me,0.4,{"left": "0%"});
   }
 }
 
@@ -222,14 +211,19 @@ function startClock() {
   lastStartTime = new Date();
   clockTimerID = setInterval(function () { 
     var now = new Date();
-    elapsed_minutes = now.getMinutes()-lastStartTime.getMinutes();
-    elapsed_seconds = now.getSeconds()-lastStartTime.getSeconds();
+    var milliseconds_in_pom = 25*60*1000;
+    var elapsed = now-lastStartTime;
+    var time_left = milliseconds_in_pom-elapsed;
 
-    // var elapsed = now-lastStartTime;
-    var seconds_in_pom = 25*60;
-    r(elapsed_minutes + ":" + elapsed_seconds);
+    // rushed this, so redundant calculations
+    var minutes_left = parseInt(time_left/1000/60);
+    var seconds_left = ((time_left-(minutes_left*1000*60))/1000).toFixed(0);
+    var time_string = minutes_left + ":" + seconds_left;
+
+    $("#poms").text(time_string);
   },1000)
 }
+
 function stopClock() {
   $("#top-half").data("clicked",false);
   $("#top-half").css({"background": "transparent"});
@@ -239,119 +233,139 @@ function stopClock() {
 $("#top-half").on("touch click",toggleClock);
 
 
-
-// var data = [4, 8, 15, 16, 23, 42];
-
-// var x = d3.scale.linear()
-//   .domain([0, d3.max(data)])
-//   .range([0,420]);
-
-// d3.select("#sandbox")
-//   .selectAll("div")
-//     .data(data)
-//   .enter().append("div")
-//     .style("background-color","red")
-//     .style("margin-bottom","0.2em")
-//     .style("width", function(d) { return x(d) + "px"; })
-//     .text(function(d) { return d; });
-
-
-
 // BEGIN #sandbox mess
 function getStats() { 
   $.getJSON('/stats_today', function(data) { 
-    buildFocusData(data);
+    var focusData = buildFocusData(data);
+    // meterizeTwentyFour(focusData);
+    initSandBoxMeter("#top-half",focusData);
+    initSandBoxLabels("#top-half",focusData);
     // k(data);
   });
 }
 getStats();
 
+function meterizeTwentyFour(focusData) {
+  $.getJSON('/today', function(data){
+    var target_total = 0;
+    focusData.forEach(function(meta_block) {
+      target_total += meta_block.target;
+      // p(target_total); 
+      $("#twenty-four > .block:lt(10)").css("background","black");
+    });    
+  });
+
+}
+
+var colors = [
+  {r: 200, g: 75, b: 75},
+  {r: 200, g: 125, b: 75},
+  {r: 175, g: 175, b: 75},    
+  {r: 50, g: 175, b: 100},
+  {r: 75, g: 125, b: 200},
+  {r: 125, g: 100, b: 200},
+  {r: 125, g: 100, b: 200},
+  {r: 125, g: 100, b: 200},
+];
+
 function buildFocusData(stats) {
-  poms_today = stats["today"];
+  var poms_today = stats["today"];
+  var target_today = stats["target"];
   delete stats["date"];
   delete stats["today"];
+  // delete stats["vicara"];
+
   var sorted_stats = Object.keys(stats).sort(function(a,b) {
     return stats[a]-stats[b];
   });
   var focusData = [];
+  // pStats();
 
+  // var target_total = 0;
   for (index in sorted_stats) {
     var label = sorted_stats[index];
+    var target = stats[label];
+
     focusData.push({
-      // label: label[0].toUpperCase() + label.split(1),
-      target: stats[label],
+      label: label,
+      target: target,
       done: poms_today
-    })
+    });
   }
 
-function pStats() {
-  p("today: " + poms_today);
-  for (label in sorted_stats) {
-    p(sorted_stats[label] + ": " + stats[sorted_stats[label]]);
+  var active_label = getActiveLabel();
+  
+  subtractAndDeleteBlocks();
+  calculateDone();
+  renderFromActive(active_label);
+
+
+  function getActiveLabel() {
+    var poms_left = 0;
+    for (var i = 0; i < focusData.length; i++) {
+      if (poms_today < focusData[i].target) {
+        var poms_left = focusData[i].target-poms_today;
+        // $("#poms").text(poms_left);
+        return focusData[i].label;
+      }
+    }
   }
-}
-// pStats();
-  // focusData = [
-  //   {target: 10, done: 10},
-  //   {target: 4, done: 5}
-  // ]
 
-
-  initSandBoxMeter("#top-half",focusData);
-  initSandBoxLabels("#top-half",focusData,sorted_stats);
-
-  // return focusData;
-}
-
-var poms = {};
-poms.dailies = [9,6,3,2,0];
-poms.target = 8;
-poms.record = 9;
-poms.average = 5; //not including today
-poms.due = 40; //including today
-poms.done = 20; 
-poms.yesterday = 2;
-poms.today = 0;
-poms.debt = poms.due-poms.done
-
-$("#poms.shadow").load("/poms_left");
-// $("#poms.shadow").text(pomMeter(poms));
-
-var focusData = [
-  {target: 5, done: 4},
-  {target: 10, done: 3},
-  {target: 3, done: 1},
-  {target: 4, done: 2}
-]
-
-function pomMeter(poms) {
-  return poms.due-poms.done;
-}
-
-var bars = {};
-bars.yesterday = poms.yesterday; 
-bars.average = poms.average - poms.yesterday;
-bars.target = poms.target - poms.average;
-bars.record = poms.record - poms.target;
-bars.debt = poms.debt - poms.record;
-
-
-var focusData = [
-  {target: bars.yesterday, done: 0},
-  {target: bars.average, done: 0},
-  {target: bars.target, done: 0},
-  {target: bars.record, done: 0},
-  {target: bars.debt, done: 0}
-
-]
-
-function k(object) {
-  pom_props = Object.keys(object)
-  for (var i = 0; i < pom_props.length; i++) {
-    p(pom_props[i] + ": " + object[pom_props[i]]);
+  function renderFromActive(active_label) {
+    focusData.forEach(function (d,i) {
+      if (d.label == active_label) {
+        // $("#poms").text(target_today-poms_today);
+        $("#poms").text(d.target-d.done);
+        $("#poms").css("color",stringRGB(colors[i]));
+      } 
+    });
   }
+
+  function subtractAndDeleteBlocks() {
+    var last_focus = { target: 0 };
+    for (var i = 0; i < focusData.length ; i++) {
+      focus = JSON.parse(JSON.stringify(focusData[i]));
+      focusData[i].target = focusData[i].target - last_focus.target;
+      last_focus = focus;
+    }
+    focusData = focusData.filter(function(item) { 
+      return item.target > 0;
+    });
+  }
+
+  function calculateDone() {
+    var total = 0;
+    for (var i = 0; i < focusData.length; i++) {
+      focusData[i].done = poms_today-total;
+      total += focusData[i].target;
+    }
+  }
+// 
+  function pStats() {
+    for (label in sorted_stats) {
+      p(sorted_stats[label] + ": " + stats[sorted_stats[label]]);
+    }
+  }
+
+  // pStats();
+  return focusData;
 }
-// k(bars);
+
+// $("#poms").load("/poms_left");
+// $("#poms").text(pomMeter(poms));
+
+// var focusData = [
+//   {target: 5, done: 4},
+//   {target: 10, done: 3},
+//   {target: 3, done: 1},
+//   {target: 4, done: 2}
+// ]
+
+// function pomMeter(poms) {
+//   return poms.due-poms.done;
+// }
+
+// END meter code
 
 function randColor() { 
   return +(Math.random() * 200 + 55).toFixed(0);
@@ -365,14 +379,6 @@ function stringRGB(colorObj,offset) {
   return "rgb(" + (colorObj.r+offset) + "," + (colorObj.g+offset) + "," + (colorObj.b+offset) + ")";
 }
 
-var colors = [
-  {r: 200, g: 125, b: 75},
-  {r: 175, g: 175, b: 75},    
-  {r: 50, g: 175, b: 100},
-  {r: 75, g: 125, b: 200},
-  {r: 125, g: 100, b: 200},
-];
-
 function initSandBoxMeter(container,data) {
   d3.select(container)
     .append("div").attr("class","meter")
@@ -382,6 +388,7 @@ function initSandBoxMeter(container,data) {
       .each(function(d, i) {
         var color = colors[i];
         var doneColor = stringRGB(color,50);
+        // var doneColor = stringRGB(colors[5],60);
         var baseColor = stringRGB(color);
         var borderColor = stringRGB(color,-50);
         for(i=0;i < d.target;i++) {
@@ -394,11 +401,11 @@ function initSandBoxMeter(container,data) {
       });
 }
 
-function initSandBoxLabels(container,data,labels) {
+function initSandBoxLabels(container,data) {
   // var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
   d3.select(container)
     .append("div").attr("class","meter lil-shadow")
-    .selectAll("div").data(labels).enter().append("div")
+    .selectAll("div").data(data).enter().append("div")
       .attr("class","meta-block")
       .style("margin-top","5px")
       .style("width",100/data.length + "%")
@@ -406,7 +413,7 @@ function initSandBoxLabels(container,data,labels) {
         d3.select(this).style("color",stringRGB(colors[i]));
         // d3.select(this).css("color","black");
       })
-      .text(function(d) { return d[0].toUpperCase()+d.slice(1); });
+      .text(function(d) { return d.label[0].toUpperCase()+d.label.slice(1); });
 }
 
 var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
@@ -511,8 +518,6 @@ $("#category-buttons > .tag-button").on("touchstart click", function() {
 
 function initWeeklies(day_of_month) {
   day_of_week = (day_of_month-1)%7+1;
-  // p(day_of_week);
-  // p(day_of_month);
   for (i = 0; i < 7; i++) {
     $('#weeklies').append("<div class = weekly-header>" + i + " </div>");
     // if ((days_of_week-1) == i) {
