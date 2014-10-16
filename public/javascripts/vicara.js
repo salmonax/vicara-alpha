@@ -2,16 +2,46 @@ setInterval(function (){
   updateConnectionDisplay();
 },1000);
 
-function p(whatever) { 
-  $("#output").append(whatever+"<br>")
-}
 function r(whatever) {
   $("#output").text(whatever);
 }
-function k(object) {
-  pom_props = Object.keys(object)
+
+function printString(whatever,noBreak) { 
+    $("#output").append(whatever);
+    if (!noBreak) { $("#output").append("<br>") }
+}
+function printObject(object,noBreak) {
+  var pom_props = Object.keys(object);
+  printString("{ ", true);
   for (var i = 0; i < pom_props.length; i++) {
-    p(pom_props[i] + ": " + object[pom_props[i]]);
+    printString(pom_props[i] + ": ", true);
+    p(object[pom_props[i]],true);
+    if (i < (pom_props.length-1)) { printString(", ",true); }
+  }
+  printString(" }", true);
+  if (!noBreak) { $("#output").append("<br>") }
+}
+function printArray(array,noBreak) {
+  printString("[",true);
+  for (var i = 0; i < array.length; i++) { 
+    p(array[i],true);
+    if (i < (array.length-1)) printString(", ", true); 
+  }
+  printString("]",true);
+  if (!noBreak) { $("#output").append("<br>") }
+}
+
+function p(variable,noBreak) { 
+  if (variable instanceof Object) {
+    if (variable instanceof Array) {
+      printArray(variable,noBreak);
+    }
+    else {
+      printObject(variable,noBreak);
+    }
+  }
+  else {
+    printString(variable,noBreak); 
   }
 }
 
@@ -225,9 +255,13 @@ function startClock() {
 }
 
 function stopClock() {
+  var count = $("#poms").data().count;
+
   $("#top-half").data("clicked",false);
   $("#top-half").css({"background": "transparent"});
+ 
   clearInterval(clockTimerID);
+  $("#poms").text(count);
 }
 
 $("#top-half").on("touch click",toggleClock);
@@ -240,10 +274,31 @@ function getStats() {
     // meterizeTwentyFour(focusData);
     initSandBoxMeter("#top-half",focusData);
     initSandBoxLabels("#top-half",focusData);
+    // drawWeeklyChart(focusData);
     // k(data);
   });
 }
 getStats();
+
+function drawWeeklyChart(focusData) {
+  var results = [0,20,40,60,0]
+  for (i = 0; i < results.length; i++) {
+    var width = 100/7;
+    var offset = i*width;
+    $("#weekly-chart").append("<div class=day-block></div>");
+    $("#weekly-chart > .day-block:nth-child("+(i+1)+")").css({
+      position: "absolute",
+      top: results[i] + "%", 
+      left: "0", right: "0", bottom: "0",
+      left: offset + "%",
+      width: width + "%",
+      height: "auto",
+      backgroundColor: "rgb(0,150,150)",
+      opacity: 0.2
+    });
+
+  }
+}
 
 function meterizeTwentyFour(focusData) {
   $.getJSON('/today', function(data){
@@ -278,6 +333,7 @@ function buildFocusData(stats) {
   var sorted_stats = Object.keys(stats).sort(function(a,b) {
     return stats[a]-stats[b];
   });
+
   var focusData = [];
   // pStats();
 
@@ -315,7 +371,9 @@ function buildFocusData(stats) {
     focusData.forEach(function (d,i) {
       if (d.label == active_label) {
         // $("#poms").text(target_today-poms_today);
-        $("#poms").text(d.target-d.done);
+        var count = d.target-d.done;
+        $("#poms").text(count);
+        $("#poms").data("count",count);
         $("#poms").css("color",stringRGB(colors[i]));
       } 
     });
@@ -417,15 +475,15 @@ function initSandBoxLabels(container,data) {
 }
 
 var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
-initSandBoxMeter("#sandbox",focusData);
-initSandBoxLabels("#sandbox",focusData,meterLabels);
+// initSandBoxMeter("#sandbox",focusData);
+// initSandBoxLabels("#sandbox",focusData,meterLabels);
 // initSandBoxMeter("#top-half",focusData);
 // initSandBoxLabels("#top-half",focusData);
 
 
-function addStuff() { 
-   $(this).append("<br>click!!");
-}
+// function addStuff() { 
+//    $(this).append("<br>click!!");
+// }
 
 $("#pomsheet-area").load("/stuff");
 
@@ -441,7 +499,7 @@ $("#pomsheet-area").load("/stuff");
 // 
 // setTimeout("location.reload(true);",2000);
 
-$("#bottom-half").on('touchstart click',addStuff);
+// $("#bottom-half").on('touchstart click',addStuff);
 $("#logo2").on('touchstart click',jeeZap);
 
 function jeeZap() {

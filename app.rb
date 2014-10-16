@@ -201,7 +201,7 @@ get '/cookies' do
   cookies
 end
 
-get '/data/books' do
+get '/data/arbolade' do
   content_type :json
   pom_parser = PomParser.new(pomsheet, last: 40)
   books_hash = pom_parser.full[:categories]["Vicara"]
