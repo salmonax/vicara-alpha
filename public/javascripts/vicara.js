@@ -425,8 +425,8 @@ function buildFocusData(stats) {
 
 // END meter code
 
-function randColor() { 
-  return +(Math.random() * 200 + 55).toFixed(0);
+function randColor(offset) { 
+  return +(Math.random() * 50 + 20).toFixed(0);
 }
 function randRGB() {
   return { r: randColor(), g: randColor(), b: randColor() } 

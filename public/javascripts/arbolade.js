@@ -140,18 +140,24 @@ function buildSortedCells(data) {
   return sortedObjects.sort(function(a,b) { return b.value - a.value; });
 }
 
-function arbolade(cells) {
+function arbolade(protoCells) {
   //originally there was a layer object that kept the totals
+  var cells = protoCells;
   var total = calculateTotal();
   calculateCellPercents();
   setCellLabels();
-  determineCellPositions();
+  positionAndSizeCells();
   drawCells();
 
+  //coupled to stringRGB(), needs to be moved elsewhere
   function drawCells() {
     cells.forEach(function(cell,i) {
       var colorValue = (80*cell.percent/100+30).toFixed(0);
       var colorRGB = "rgb(" + colorValue + "," + colorValue + "," + colorValue + ")";
+
+      // color = randRGB();      
+      // colorRGB = stringRGB(color);
+
       var borderRGB = "rgb(0,0,0)";
 
       rectangle(
@@ -166,29 +172,41 @@ function arbolade(cells) {
     });
   }
 
+  function cramCellsLeft(thisMany) {
+    cells.forEach(function(cell,i) { 
+      if (i >= thisMany) {
+      }
+    });
+  }
+
+  // p(" !! " + cramCellsLeft(2))
+
   function setCellLabels() {
     cells.forEach(function(cell, i) { 
       cell.label = cell.name +" ("+cell.value/2 + "h)";
     });
   }
 
-  function determineCellPositions() {
+
+
+  function positionAndSizeCells() {
+    //WARNING: if you're reading this, width and height need to be rounded!
     var offset = { x: 0, y: 0 };
     cells.forEach(function(cell, i) {
-      var direction = (i%2 == 0) ? "vertical" : "horizontal";
+      var direction = (i%2 == 0) ? "left" : "up";
       cell.x = offset.x;
       cell.y = offset.y;
-      if (direction == "vertical") {
-        cell.height = (100.0 - cell.y).toFixed(2);
-        cell.width = (cell.percent/(cell.height/100)).toFixed(2);
+      if (direction == "left") {
+        cell.height = 100.0 - cell.y;
+        cell.width = cell.percent/(cell.height/100);
         offset.x += parseFloat(cell.width);
       }
       else {
-        cell.width = (100.0 - cell.x).toFixed(2);
-        cell.height = (cell.percent/(cell.width/100)).toFixed(2);
+        cell.width = 100.0 - cell.x;
+        cell.height = cell.percent/(cell.width/100);
         offset.y += parseFloat(cell.height);
       }
-      p(cell);
+      // p(cell);
     });
   }
 
@@ -293,10 +311,29 @@ $.getJSON('/data/arbolade', function(data){
 
 
 $("#arbolade").on('touch click',"div",touchCell);
+// $("#arbolade").on('mouseover touchstart',"div",lightCell);
+// $("#arbolade").on('mouseout','div',darkCell);
+
+function lightCell() {
+  var me = $(this);
+  me.data("backgroundColor", me.css("backgroundColor"));
+  me.css("backgroundColor","rgb(60,60,100)");
+  // me.css("borderColor","rgb(100,100,100)");
+}
+
+//WARNING: borderColor not originally set to anything.
+function darkCell() { 
+  var me = $(this);
+  data = me.data();
+  me.css("backgroundColor",data.backgroundColor);
+  // me.css("borderColor","rgb(255,255,255)");
+  // me.css("borderColor","black");
+}
 
 function touchCell() {
   var me = $(this);
   var data = me.data();
+  // p(data);
   var destAnim;
 
   if (data.clicked == false) {

@@ -15,12 +15,14 @@ require './lib/meter'
 
 raw_pomsheet = File.read("/home/salmonax/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
 
-pom_parser = PomParser.new(raw_pomsheet)
+pom_parser = PomParser.new(raw_pomsheet,last:40)
 
-# pp pom_parser.targets
+pp pom_parser.full
 # pp pom_parser
 
 meter = Meter.new(pom_parser)
-pp meter.stats.reverse
+# pp meter.stats.reverse
+
+# pp pom_parser.methods - Object.methods
 # pp meter.poms_left
 # pp meter.poms_this_month
