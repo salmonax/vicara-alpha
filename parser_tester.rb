@@ -17,7 +17,7 @@ raw_pomsheet = File.read("/home/salmonax/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
 
 pom_parser = PomParser.new(raw_pomsheet,last:40)
 
-pp pom_parser.full
+pp pom_parser
 # pp pom_parser
 
 meter = Meter.new(pom_parser)

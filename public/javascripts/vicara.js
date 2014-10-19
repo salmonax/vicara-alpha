@@ -1,7 +1,4 @@
-setInterval(function (){
-  updateConnectionDisplay();
-},1000);
-
+//BEGIN Print Helpers
 function r(whatever) {
   $("#output").text(whatever);
 }
@@ -44,22 +41,28 @@ function p(variable,noBreak) {
     printString(variable,noBreak); 
   }
 }
+//END Print Helpers
 
-var start = new Date;
+//BEGIN  Color Helpers
 
-var targets = {
-  first:5,
-  second:10,
-  third:3,
+function randColor(offset) { 
+  //rejigger this to take parameters to take multiplier and offset
+  return +(Math.random() * 50 + 20).toFixed(0);
+}
+function randRGB() {
+  return { r: randColor(), g: randColor(), b: randColor() } 
 }
 
-var done = {
-  first: 4,
-  second: 3,
-  third: 1,
+function stringRGB(colorObj,offset) { 
+  offset = offset || 0; 
+  return "rgb(" + (colorObj.r+offset) + "," + (colorObj.g+offset) + "," + (colorObj.b+offset) + ")";
 }
 
-function initMeter(container,target,margin) {
+//END Color Helpers
+
+
+//BEGIN TwentyFourBar and desiderata
+function initHorizontalMeterBar(container,target,margin) {
   for (var i = 0; i < target; i++) {
     $("<div class='block'></div>").appendTo(container);
   }
@@ -101,18 +104,10 @@ function setLeftRight() {
   $("#pom-right").text(pom_right);
 }
 
-var allMargin = 0;
-
 setTimeMarkerPosition();
 
-initMeter("#first",targets.first,allMargin);
-fillMeter("#first",done.first,"rgb(150,120,120");
-initMeter("#second",targets.second,allMargin);
-fillMeter("#second",done.second,"rgb(120,150,120");
-initMeter("#third",targets.third,allMargin);
-fillMeter("#third",done.third,"rgb(120,120,150");
-
-initMeter("#twenty-four",48,allMargin);
+var allMargin = 0;
+initHorizontalMeterBar("#twenty-four",48,allMargin);
 
 // $("#twenty-four > .block").css("background","white");
 
@@ -136,43 +131,15 @@ function setTwentyFour() {
   });
 }
  setTwentyFour();
+//END TwentyFourBar and desiderata
 
-// setInterval(function(){
-//   $("#bottom-half").text("Width: " + window.innerWidth);
-//   $("#bottom-half").append("<br>Height: " + window.innerHeight);
-// }, 1000);
 
-// simple auto-refresh ajaxing technique
-// refreshes = 0;
-// function worker() {
-//   $.ajax({
-//     url: '/poms_left',
-//     success: function(data) {
-//       $('#poms.shadow').text(data);
-//     },
-//     complete: function() {
-//       setTimeout(worker,1000);
-//     }
-//   });
-// }
-// worker();
+//BEGIN EvenStream
 
-// function updateOnFileChange() { 
-//   window.location.reload();
-// }
+setInterval(function (){
+  updateConnectionDisplay();
+},1000);
 
-// function worker() {
-//   $.ajax({
-//     url: '/consume',
-//     success: function(data) { 
-//       p(data);
-//     },
-//     complete: function() {
-//       setTimeout(worker,100);
-//     }
-//   });
-// }
-// setTimeout(worker,100);
 
 function updateOnDropboxWebhook() {
   clearTwentyFour();
@@ -181,31 +148,17 @@ function updateOnDropboxWebhook() {
 }
 
 var es = new EventSource('/consume');
-// postClockStop();
 es.onmessage = function(e) {
-  // p("message:" + e.data);
   if (e.data == "update_dropbox") {
-    // p("Dropbox updated!");
     updateOnDropboxWebhook();
   } else if (e.data == "start_timer") {
       startClock();
-    // p("EventSource Start!!!");
   } else if (e.data == "stop_timer") {
       stopClock();
-    // p("EventSource Stop!!!!");
-  } else {
-    // p(e.data);
   }
 };
 
-// updateConnectionDisplay();
-// $(document).ready(function () {
-//   // postClockStop();
-//   p("fuck!");
-// })
-
 function updateConnectionDisplay() {
-  // p("HELLO");
   if (es.readyState == 1)
     $("#connection").text("EventStream Connected")
       .css("color","green");
@@ -216,7 +169,9 @@ function updateConnectionDisplay() {
   }
 }
 
+//END EventStream
 
+//BEGIN Clock
 $('#top-half').data({
   clicked: false
 });
@@ -265,22 +220,220 @@ function stopClock() {
 }
 
 $("#top-half").on("touch click",toggleClock);
+//END Clock
 
+// BEGIN Turnip, the max/average/minimum velocity pacer
+var turnipColors = [
+  {r: 200, g: 75, b: 75},
+  {r: 200, g: 125, b: 75},
+  {r: 175, g: 175, b: 75},    
+  {r: 50, g: 175, b: 100},
+  {r: 75, g: 125, b: 200},
+  {r: 125, g: 100, b: 200},
+  {r: 125, g: 100, b: 200},
+  {r: 125, g: 100, b: 200},
+];
 
-// BEGIN #sandbox mess
-function getStats() { 
+function getRawTurnipStats() { 
   $.getJSON('/stats_today', function(data) { 
-    var focusData = buildFocusData(data);
-    // meterizeTwentyFour(focusData);
-    initSandBoxMeter("#top-half",focusData);
-    initSandBoxLabels("#top-half",focusData);
-    // drawWeeklyChart(focusData);
+    var turnipData = buildTurnipData(data);
+    turnipizeTwentyFour(turnipData);
+    initTurnipBar("#top-half",turnipData);
+    initTurnipBarLabels("#top-half",turnipData);
+    // drawUnderlayerChart(turnipData);
     // k(data);
   });
 }
-getStats();
+getRawTurnipStats();
 
-function drawWeeklyChart(focusData) {
+function turnipizeTwentyFour(turnipData) {
+  $.getJSON('/today', function(data){
+    var target_total = 0;
+    var nowIndex = Math.round(decimalTime()*2);
+    var i;
+
+    var total = 0
+
+    //STEP 1: get the cumulative total into each data object
+    for (i=0;i < data.length; i++) {
+      total += data[i].poms
+      data[i].total = total
+    }
+    //STEP 2: reverse through and lt from greatest to least,
+    //        extract the correct color from the turnipData block
+    var reversedData = data.reverse()
+    var lastTaskIndex = reversedData[0].time*2;
+    var lastPomsDone = reversedData[0].total;
+    reversedData.forEach(function(task, i) {
+      var taskIndex = task.time*2; 
+      var pomsDone = task.total;
+      var turnipIndex = getTurnipIndexAt(turnipData,pomsDone); 
+      var turnipColor= turnipColors[turnipIndex];
+      var turnipColorRGB = stringRGB(turnipColor);
+      var turnipBrightRGB = stringRGB(turnipColor,50);
+      var turnipBorderRGB = stringRGB(turnipColor,-100);
+      // var turnipBrightRGB = "white";
+      // p("color block " + taskIndex + " to color of block " + turnipIndex);
+      $("#twenty-four > .block:lt("+taskIndex+")").css({
+        backgroundColor: turnipColorRGB,
+        borderColor: turnipBorderRGB
+      });
+      $("#twenty-four > .block:nth-child("+taskIndex+")").css("background",turnipBrightRGB);
+    });
+    //STEP 3: add right portion with nth-child via iteration
+    for (i = nowIndex; i < 48; i++) {
+      var blocksAfterLast = i-nowIndex;
+      var turnipAfterLast = getTurnipIndexAt(turnipData,lastPomsDone+blocksAfterLast);
+      var colorAfterLast = turnipColors[turnipAfterLast];
+      var colorAfterLastRGB = stringRGB(colorAfterLast);
+      var colorAfterLastBrightRGB = stringRGB(colorAfterLast,50);
+      var colorAfterLastBorderRGB = stringRGB(colorAfterLast,-100);
+      // p("here: " + i + " " + blocksAfterLast);
+      $("#twenty-four > .block:nth-child("+(i+1)+")").css({
+        backgroundColor: colorAfterLastRGB,
+        borderColor: colorAfterLastBorderRGB
+      });
+    }
+    // p(lastTaskIndex);
+    //STEP 4: clean up my fucking mess
+  });
+}
+
+function getTurnipIndexAt(turnipData,pomsDone) {
+  var turnipTotal = 0;
+  var i;
+  for (var i = 0 ; i < turnipData.length; i++) {
+    turnipTotal += turnipData[i].target
+    if (turnipTotal > pomsDone) { break; }
+  }
+  return i;
+}
+
+
+function buildTurnipData(stats) {
+  var poms_today = stats["today"];
+  var target_today = stats["target"];
+  delete stats["date"];
+  delete stats["today"];
+  // delete stats["vicara"];
+
+  var sorted_stats = Object.keys(stats).sort(function(a,b) {
+    return stats[a]-stats[b];
+  });
+
+  var turnipData = [];
+  // pStats();
+
+  // var target_total = 0;
+  for (index in sorted_stats) {
+    var label = sorted_stats[index];
+    var target = stats[label];
+
+    turnipData.push({
+      label: label,
+      target: target,
+      done: poms_today
+    });
+  }
+
+  var running_label = getRunningTurnipLabel();
+  
+  subtractAndDeleteBlocks();
+  calculateDone();
+  renderFromActive(running_label);
+
+
+  function getRunningTurnipLabel() {
+    var poms_left = 0;
+    for (var i = 0; i < turnipData.length; i++) {
+      if (poms_today < turnipData[i].target) {
+        var poms_left = turnipData[i].target-poms_today;
+        // $("#poms").text(poms_left);
+        return turnipData[i].label;
+      }
+    }
+  }
+
+  function renderFromActive(active_label) {
+    turnipData.forEach(function (d,i) {
+      if (d.label == active_label) {
+        // $("#poms").text(target_today-poms_today);
+        var count = d.target-d.done;
+        $("#poms").text(count);
+        $("#poms").data("count",count);
+        $("#poms").css("color",stringRGB(turnipColors[i]));
+      } 
+    });
+  }
+
+  function subtractAndDeleteBlocks() {
+    var last_focus = { target: 0 };
+    for (var i = 0; i < turnipData.length ; i++) {
+      focus = JSON.parse(JSON.stringify(turnipData[i]));
+      turnipData[i].target = turnipData[i].target - last_focus.target;
+      last_focus = focus;
+    }
+    turnipData = turnipData.filter(function(item) { 
+      return item.target > 0;
+    });
+  }
+
+  function calculateDone() {
+    var total = 0;
+    for (var i = 0; i < turnipData.length; i++) {
+      turnipData[i].done = poms_today-total;
+      total += turnipData[i].target;
+    }
+  }
+// 
+  function pStats() {
+    for (label in sorted_stats) {
+      p(sorted_stats[label] + ": " + stats[sorted_stats[label]]);
+    }
+  }
+  return turnipData;
+}
+
+function initTurnipBar(container,data) {
+  d3.select(container)
+    .append("div").attr("class","meter")
+    .selectAll("div").data(data).enter().append("div")
+      .attr("class","meta-block")
+      .style("width",100/data.length + "%")
+      .each(function(d, i) {
+        var color = turnipColors[i];
+        var doneColor = stringRGB(color,50);
+        // var doneColor = stringRGB(turnipColors[5],60);
+        var baseColor = stringRGB(color);
+        var borderColor = stringRGB(color,-50);
+        for(i=0;i < d.target;i++) {
+          d3.select(this).append("div")
+            .attr("class","block")
+            .style("width",100/d.target + "%")
+            .style("background", i < d.done ? doneColor : baseColor)
+            .style("border","1px solid " + borderColor);
+        }
+      });
+}
+
+function initTurnipBarLabels(container,data) {
+  d3.select(container)
+    .append("div").attr("class","meter lil-shadow")
+    .selectAll("div").data(data).enter().append("div")
+      .attr("class","meta-block")
+      .style("margin-top","5px")
+      .style("width",100/data.length + "%")
+      .each(function(d,i) {
+        d3.select(this).style("color",stringRGB(turnipColors[i]));
+        // d3.select(this).css("color","black");
+      })
+      .text(function(d) { return d.label[0].toUpperCase()+d.label.slice(1); });
+}
+//END Turnip
+
+
+//BEGIN UnderChart
+function drawUnderChart(turnipData) {
   var results = [0,20,40,60,0]
   for (i = 0; i < results.length; i++) {
     var width = 100/7;
@@ -299,244 +452,13 @@ function drawWeeklyChart(focusData) {
 
   }
 }
-
-function meterizeTwentyFour(focusData) {
-  $.getJSON('/today', function(data){
-    var target_total = 0;
-    focusData.forEach(function(meta_block) {
-      target_total += meta_block.target;
-      // p(target_total); 
-      $("#twenty-four > .block:lt(10)").css("background","black");
-    });    
-  });
-
-}
-
-var colors = [
-  {r: 200, g: 75, b: 75},
-  {r: 200, g: 125, b: 75},
-  {r: 175, g: 175, b: 75},    
-  {r: 50, g: 175, b: 100},
-  {r: 75, g: 125, b: 200},
-  {r: 125, g: 100, b: 200},
-  {r: 125, g: 100, b: 200},
-  {r: 125, g: 100, b: 200},
-];
-
-function buildFocusData(stats) {
-  var poms_today = stats["today"];
-  var target_today = stats["target"];
-  delete stats["date"];
-  delete stats["today"];
-  // delete stats["vicara"];
-
-  var sorted_stats = Object.keys(stats).sort(function(a,b) {
-    return stats[a]-stats[b];
-  });
-
-  var focusData = [];
-  // pStats();
-
-  // var target_total = 0;
-  for (index in sorted_stats) {
-    var label = sorted_stats[index];
-    var target = stats[label];
-
-    focusData.push({
-      label: label,
-      target: target,
-      done: poms_today
-    });
-  }
-
-  var active_label = getActiveLabel();
-  
-  subtractAndDeleteBlocks();
-  calculateDone();
-  renderFromActive(active_label);
-
-
-  function getActiveLabel() {
-    var poms_left = 0;
-    for (var i = 0; i < focusData.length; i++) {
-      if (poms_today < focusData[i].target) {
-        var poms_left = focusData[i].target-poms_today;
-        // $("#poms").text(poms_left);
-        return focusData[i].label;
-      }
-    }
-  }
-
-  function renderFromActive(active_label) {
-    focusData.forEach(function (d,i) {
-      if (d.label == active_label) {
-        // $("#poms").text(target_today-poms_today);
-        var count = d.target-d.done;
-        $("#poms").text(count);
-        $("#poms").data("count",count);
-        $("#poms").css("color",stringRGB(colors[i]));
-      } 
-    });
-  }
-
-  function subtractAndDeleteBlocks() {
-    var last_focus = { target: 0 };
-    for (var i = 0; i < focusData.length ; i++) {
-      focus = JSON.parse(JSON.stringify(focusData[i]));
-      focusData[i].target = focusData[i].target - last_focus.target;
-      last_focus = focus;
-    }
-    focusData = focusData.filter(function(item) { 
-      return item.target > 0;
-    });
-  }
-
-  function calculateDone() {
-    var total = 0;
-    for (var i = 0; i < focusData.length; i++) {
-      focusData[i].done = poms_today-total;
-      total += focusData[i].target;
-    }
-  }
-// 
-  function pStats() {
-    for (label in sorted_stats) {
-      p(sorted_stats[label] + ": " + stats[sorted_stats[label]]);
-    }
-  }
-
-  // pStats();
-  return focusData;
-}
-
-// $("#poms").load("/poms_left");
-// $("#poms").text(pomMeter(poms));
-
-// var focusData = [
-//   {target: 5, done: 4},
-//   {target: 10, done: 3},
-//   {target: 3, done: 1},
-//   {target: 4, done: 2}
-// ]
-
-// function pomMeter(poms) {
-//   return poms.due-poms.done;
-// }
-
-// END meter code
-
-function randColor(offset) { 
-  return +(Math.random() * 50 + 20).toFixed(0);
-}
-function randRGB() {
-  return { r: randColor(), g: randColor(), b: randColor() } 
-}
-
-function stringRGB(colorObj,offset) { 
-  offset = offset || 0; 
-  return "rgb(" + (colorObj.r+offset) + "," + (colorObj.g+offset) + "," + (colorObj.b+offset) + ")";
-}
-
-function initSandBoxMeter(container,data) {
-  d3.select(container)
-    .append("div").attr("class","meter")
-    .selectAll("div").data(data).enter().append("div")
-      .attr("class","meta-block")
-      .style("width",100/data.length + "%")
-      .each(function(d, i) {
-        var color = colors[i];
-        var doneColor = stringRGB(color,50);
-        // var doneColor = stringRGB(colors[5],60);
-        var baseColor = stringRGB(color);
-        var borderColor = stringRGB(color,-50);
-        for(i=0;i < d.target;i++) {
-          d3.select(this).append("div")
-            .attr("class","block")
-            .style("width",100/d.target + "%")
-            .style("background", i < d.done ? doneColor : baseColor)
-            .style("border","1px solid " + borderColor);
-        }
-      });
-}
-
-function initSandBoxLabels(container,data) {
-  // var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
-  d3.select(container)
-    .append("div").attr("class","meter lil-shadow")
-    .selectAll("div").data(data).enter().append("div")
-      .attr("class","meta-block")
-      .style("margin-top","5px")
-      .style("width",100/data.length + "%")
-      .each(function(d,i) {
-        d3.select(this).style("color",stringRGB(colors[i]));
-        // d3.select(this).css("color","black");
-      })
-      .text(function(d) { return d.label[0].toUpperCase()+d.label.slice(1); });
-}
+//END UnderChart
 
 var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
-// initSandBoxMeter("#sandbox",focusData);
-// initSandBoxLabels("#sandbox",focusData,meterLabels);
-// initSandBoxMeter("#top-half",focusData);
-// initSandBoxLabels("#top-half",focusData);
 
-
-// function addStuff() { 
-//    $(this).append("<br>click!!");
-// }
 
 $("#pomsheet-area").load("/stuff");
 
-// $(".draggable").draggable();
-// $("#slider").slider({
-//     orientation: "horizontal"
-// });
-
-// var logo = $('#nurnie');
-// TweenLite.to(logo,1, {left:"500px"})
-
-
-// 
-// setTimeout("location.reload(true);",2000);
-
-// $("#bottom-half").on('touchstart click',addStuff);
-$("#logo2").on('touchstart click',jeeZap);
-
-function jeeZap() {
-  var logo = $("#logo");
-
-  var logo2 = $("#logo2");
-  TweenMax.to([logo,logo2], 0.5, {
-    width:"632px", 
-    height:"400px", 
-    backgroundColor: "white",
-    onUpdate:updateHandler,
-    onComplete:completeHandler,
-    onCompleteParams:["animation complete!"]
-  });
-  TweenMax.to([logo,logo2], 0.5, {
-    width:"50px", 
-    height:"50px", 
-    backgroundColor: "black",
-    onUpdate:updateHandler,
-    delay: 0.5
-  });
-}
-
-function jeeZap2() { 
-  $("#logo").animate({width: "500px",height: "500px"}, 1000);
-  $("#logo").animate({width: "50px", height: "50px"}, 1000);
-}
-
-
-function updateHandler() {
-  $("#logo").text($("#logo").css("width"))
-}
-function completeHandler(message) {
-  $("#whatever").text(message);
-}
-
-//END #sandbox mess
 
 var daily_data = {}
 daily_data.tags = ["R","RR","WW","W",">"];
@@ -600,9 +522,7 @@ function initWeeklies(day_of_month) {
 initWeeklies(7);
 
 
-
-
-// refactor this
+//BEGIN Vertical Meter Bars
 function initMeterV(container,target,margin) {
   for (var i = 0; i < target; i++) {
     $("<div class='vblock'></div>").appendTo(container);
@@ -612,46 +532,7 @@ function initMeterV(container,target,margin) {
     border: "1px solid gray"
   });
 }
-
 function fillMeterV(container,done,color) {
   $(container + " > .vblock:lt(" + done + ")").css("background",color); 
 }
-
-//*** dumb meter crap
-
-// $("#top-half").append("<div id=lmeter></div>");
-// $("#top-half").append("<div id=rmeter></div>");
-// $("#rmeter").css({
-//     position: "relative",
-//     top: -90,
-//     float: "right",
-//     height: "80%",
-//     width: "15px",
-//     background: "rgb(150,0,0)"
-//   });
-// $("#lmeter").css({
-//     position: "relative",
-//     top: -90,
-//     float: "left",
-//     height: "80%",
-//     width: "15px",
-//     background: "black"
-//   });
-
-
-// initMeterV("#rmeter",poms.debt,allMargin);
-// fillMeterV("#rmeter",0,"rgb(100,100,100)");
-
-// initMeterV("#lmeter",10,allMargin);
-// fillMeterV("#lmeter",0,"rgb(100,100,100)");
-
-
-Draggable.create(".peg", {type:"x,y", edgeResistance:1, bounds: ".slider"});
-Draggable.create("#button-start", {type:"x,y"});
-
-// jeeZap();
-
-
-
-
-
+//END Vertical Meter Bars

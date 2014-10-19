@@ -6,6 +6,7 @@ body {
   height: 100%;
   margin: 0px;
   background: rgb(0,40,80);
+  color: white;
 }
 
 #left-half, #right-half {
