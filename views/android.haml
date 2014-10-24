@@ -1,5 +1,4 @@
 #android.gradient
-  #output
   #left-half
     #top-half.container
       #chart-container
@@ -10,6 +9,8 @@
         #pom-left
         #pom-right
         #poms.shadow
+        #poms-done
+        #poms-not-done
       /#stats
       /#button-start START
       / .meter.draggable
@@ -23,4 +24,16 @@
     #bottom-half
       #arbolade
   #right-half
-    %textarea#pomsheet-area{readonly: true, spellcheck: 'false'}
+    %textarea#pomsheet-area{readonly: false, spellcheck: 'false'}
+    / #pomsheet-area{contenteditable: true, spellcheck: 'false'}
+:css
+  #poms-done {
+    float: left;
+    margin-left: 20px;
+    margin-bottom: 5px;
+  }
+  #poms-not-done {
+    float: right;
+    margin-right: 20px;
+    margin-bottom: 5px;
+  }

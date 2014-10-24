@@ -203,7 +203,7 @@ end
 
 get '/data/arbolade' do
   content_type :json
-  pom_parser = PomParser.new(pomsheet, last: 40)
+  pom_parser = PomParser.new(pomsheet, last: 80)
   treemap_hash = pom_parser.full[:categories]["Vicara"]
   Treemap.new(treemap_hash).full.to_json
 end
@@ -274,10 +274,17 @@ __END__
     %script{src:"/javascripts/d3.v3.min.js"}
     %script{src:"/javascripts/Draggable.min.js"}
     %script{src:"/javascripts/TweenMax.min.js"}
+    %script{src:"/javascripts/highstock.js"}
+    %script{src:"/javascripts/dark-unica.js"}
+    %script{src:"/javascripts/helpers.js"}
     %link{rel:"stylesheet", href:"/stylesheets/jquery-ui.min.css"}    
     %link{rel:"stylesheet", href:"/stylesheets/vicara.css"}
   %body
-    =yield
+    #debug
+      #output
+      #graphic
+    #screen
+      =yield
   %script{src:"/javascripts/vicara.js"}
   %script{src:"/javascripts/arbolade.js"}
   %script{src:"/javascripts/ritmus.js"}

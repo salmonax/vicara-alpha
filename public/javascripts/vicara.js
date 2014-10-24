@@ -1,66 +1,3 @@
-//BEGIN Print Helpers
-function r(whatever) {
-  $("#output").text(whatever);
-}
-
-function printString(whatever,noBreak) { 
-    $("#output").append(whatever);
-    if (!noBreak) { $("#output").append("<br>") }
-}
-function printObject(object,noBreak) {
-  var pom_props = Object.keys(object);
-  printString("{ ", true);
-  for (var i = 0; i < pom_props.length; i++) {
-    printString(pom_props[i] + ": ", true);
-    p(object[pom_props[i]],true);
-    if (i < (pom_props.length-1)) { printString(", ",true); }
-  }
-  printString(" }", true);
-  if (!noBreak) { $("#output").append("<br>") }
-}
-function printArray(array,noBreak) {
-  printString("[",true);
-  for (var i = 0; i < array.length; i++) { 
-    p(array[i],true);
-    if (i < (array.length-1)) printString(", ", true); 
-  }
-  printString("]",true);
-  if (!noBreak) { $("#output").append("<br>") }
-}
-
-function p(variable,noBreak) { 
-  if (variable instanceof Object) {
-    if (variable instanceof Array) {
-      printArray(variable,noBreak);
-    }
-    else {
-      printObject(variable,noBreak);
-    }
-  }
-  else {
-    printString(variable,noBreak); 
-  }
-}
-//END Print Helpers
-
-//BEGIN  Color Helpers
-
-function randColor(offset) { 
-  //rejigger this to take parameters to take multiplier and offset
-  return +(Math.random() * 50 + 20).toFixed(0);
-}
-function randRGB() {
-  return { r: randColor(), g: randColor(), b: randColor() } 
-}
-
-function stringRGB(colorObj,offset) { 
-  offset = offset || 0; 
-  return "rgb(" + (colorObj.r+offset) + "," + (colorObj.g+offset) + "," + (colorObj.b+offset) + ")";
-}
-
-//END Color Helpers
-
-
 //BEGIN TwentyFourBar and desiderata
 function initHorizontalMeterBar(container,target,margin) {
   for (var i = 0; i < target; i++) {
@@ -240,6 +177,8 @@ function getRawTurnipStats() {
     turnipizeTwentyFour(turnipData);
     initTurnipBar("#top-half",turnipData);
     initTurnipBarLabels("#top-half",turnipData);
+    // $("#poms-done").text(data.)
+    // p(data);
     // drawUnderlayerChart(turnipData);
     // k(data);
   });
@@ -261,7 +200,7 @@ function turnipizeTwentyFour(turnipData) {
     }
     //STEP 2: reverse through and lt from greatest to least,
     //        extract the correct color from the turnipData block
-    var reversedData = data.reverse()
+    var reversedData = data.reverse();
     var lastTaskIndex = reversedData[0].time*2;
     var lastPomsDone = reversedData[0].total;
     reversedData.forEach(function(task, i) {
@@ -294,9 +233,21 @@ function turnipizeTwentyFour(turnipData) {
         borderColor: colorAfterLastBorderRGB
       });
     }
+    //WARNING: here's some spaghetti that needs to be somewhere else!
+    for (i = 0; i < turnipData.length; i++) {
+      target_total += turnipData[i].target;
+    }
+
+    setPomsDoneAndNotDone(lastPomsDone,target_total-lastPomsDone);
+    // p(lastPomsDone);
     // p(lastTaskIndex);
     //STEP 4: clean up my fucking mess
   });
+}
+
+function setPomsDoneAndNotDone(done,notDone) {
+  $("#poms-done").text(done);
+  $("#poms-not-done").text(notDone);
 }
 
 function getTurnipIndexAt(turnipData,pomsDone) {
@@ -457,7 +408,7 @@ function drawUnderChart(turnipData) {
 var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
 
 
-$("#pomsheet-area").load("/stuff");
+// $("#pomsheet-area").load("/stuff");
 
 
 var daily_data = {}
@@ -536,3 +487,150 @@ function fillMeterV(container,done,color) {
   $(container + " > .vblock:lt(" + done + ")").css("background",color); 
 }
 //END Vertical Meter Bars
+
+// $(function(){
+//   $('#pomsheet-area').keydown(function(){
+//     setTimeout(function() {
+//       $('#output').text($('#txt').val());
+//     }, 50);
+//   });
+// });
+
+
+var keyTimer = null, 
+    duringDelay = 10,
+    afterDelay = 1000, 
+    typingBuffer = "",
+    lastTyped = "";
+var startTime, stopTime, duringTime;
+
+$("*").keydown(toggleConsole);
+
+function toggleConsole(event) {
+  var keyCode = event.keyCode || event.which;
+  if (keyCode == 192) {
+      var display = $("#debug").css("display");
+      var output = $("#debug");
+      var screen = $("#screen");
+      var consoleClosed = {
+        display: "none",
+        height: "0%",
+        // ease:Expo.easeInOut
+      };
+      var consoleOpen = {
+        display: "block",
+        height: "30%",
+        // ease:Expo.easeInOut
+      };
+
+      var screenScrunched = { 
+        height: "70%", 
+        // ease:Expo.easeInOut 
+      };
+      var screenUnscrunched = { 
+        height: "100%",
+        // ease:Expo.easeInOut
+      };
+
+      if (display == "block") {
+        TweenMax.to(output,0.1,consoleClosed);
+        TweenMax.to(screen,0.1,screenUnscrunched);
+      } else {
+        TweenMax.to(output,0.1,consoleOpen);
+        TweenMax.to(screen,0.1,screenScrunched);
+      }
+      return false;
+  }
+}
+
+$("#pomsheet-area").keydown(function (event) {
+  //NOTE: returning on enter/space may fix doubling bug
+  var keyCode = event.keyCode || event.which;
+  var val = this.value,
+      start = this.selectionStart,
+      end = this.selectionEnd;
+  // Handle Tabs
+  if (keyCode == 192) { return false; }
+  if (keyCode == 9) {
+    event.preventDefault();
+    this.value = val.substring(0,start) + '\t' + val.substring(end);
+    this.selectionStart = this.selectionEnd = start + 1;
+    //NOTE: tabs are not mirrored below
+    return false;
+  } 
+  // Handle Before, During, After Typing
+  doBeforeEachKey();
+  setTimeout(doDuringTyping, duringDelay);
+
+  if (keyTimer) {
+    window.clearTimeout(keyTimer);
+  }
+  else {
+    doBeforeTyping();
+  }
+
+  keyTimer = window.setTimeout(function() {
+    keyTimer = null;
+    doAfterTyping();
+  }, afterDelay);
+
+  function doBeforeEachKey() { 
+    lastTyped = "";
+  }
+
+  function doBeforeTyping() {
+    // p("THIS SHOULD FIRE");
+    startTime = new Date().getTime();
+  }
+
+  function doDuringTyping() {
+    pushToTypingBuffer();
+    outputBufferText();
+    showRunningStats();
+
+    function pushToTypingBuffer() {
+      lastTyped = $("#pomsheet-area").val()[start];
+      if (lastTyped) { typingBuffer = typingBuffer + lastTyped; }
+    }
+    function outputBufferText() {
+      $("#output").text("");
+      p(typingBuffer,true);
+    }
+
+    function showRunningStats() { 
+      // $("#output").empty();
+      outputStats();
+    }
+  }
+  function doAfterTyping() {
+    // outputStats();
+    clearTypingBuffer();
+    outputDoneText();
+    function clearTypingBuffer() {
+      typingBuffer = "";
+    }
+    function outputDoneText() {
+      $("#output").text("Congratulations! You finished");
+    }
+  }
+
+  function outputStats() {
+    var currentTime = new Date().getTime();
+    var elapsed_seconds = (currentTime-startTime*1)/1000,
+        elapsed_minutes = elapsed_seconds/60,
+        chars = typingBuffer.length,
+        words = typingBuffer.split(" ").length,
+        cps = Math.round(chars/elapsed_seconds);
+        wpm = Math.round(words/elapsed_minutes);
+    p("");
+    p("Keycode: " + event.keyCode);
+    p("Textbox Content Length (Start: ");
+    p("Textbox Content Length (End): ");
+    p("Elapsed (seconds): " + elapsed_seconds);
+    p("Elapsed (minutes): " + elapsed_minutes)
+    p("Buffer Characters: " + chars);
+    p("Buffer Words: " + words);
+    p("CPS Typed: " + cps);
+    p("WPM Typed: " + wpm);
+  }
+});

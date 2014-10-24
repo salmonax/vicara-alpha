@@ -1,5 +1,6 @@
 html {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -7,6 +8,45 @@ body {
   margin: 0px;
   background: rgb(0,40,80);
   color: white;
+}
+#screen { 
+  height: 100%;
+  width: 100%;
+}
+#output { 
+  float: left;
+}
+#graphic {
+  position: relative;
+  /*background: black;*/
+  height: 100%;
+  width: 50%;
+  float: right;
+}
+
+#debug { 
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  font-family: Terminus;
+  font-size: 14px;
+  margin: 0px;
+  width: 100%;
+  /*min-height: 24px;*/
+  /*border-style: solid;*/
+  /*border-width: 0px;*/
+  /*border-top-width: 1px;*/
+  height: 0px;
+  bottom: 0px;
+  background: rgb(48,10,36);
+  /*border-color: rgb(25,25,40);*/
+  padding: 5px;
+  padding-left: 10px;
+  position: absolute;
+  text-align: left;
+  color: white;
+  opacity: 0.8;
+  display: none;
+  z-index: 10;
 }
 
 #left-half, #right-half {
@@ -44,10 +84,6 @@ body {
   height: 10px;
 }
 
-#output { 
-  text-align: left;
-  color: white;
-}
 
 .weekly-days { 
   box-sizing: border-box;
