@@ -57,10 +57,18 @@ end
 
 before do 
   # pp request.host
-  if !request.ssl? and request.host != "localhost" and request.host != "192.168.42.250"
+  if !request.ssl? and request.host != "localhost" and request.host != "192.168.42.250" and request.host != "192.168.42.94"
     redirect "https://#{request.host_with_port}#{request.path}"
   end
 end
+
+get "/", :agent => /iPad/i do
+  haml :ipad
+end
+get "/ipad" do
+  haml :ipad
+end
+
 
 get "/" do 
   # authed?
@@ -271,7 +279,7 @@ __END__
 %html
   %head
     %script{src:"/javascripts/jquery-2.1.0.min.js"}
-    %script{src:"/javascripts/d3.v3.min.js"}
+    %script{src:"/javascripts/d3.js"}
     %script{src:"/javascripts/Draggable.min.js"}
     %script{src:"/javascripts/TweenMax.min.js"}
     %script{src:"/javascripts/highstock.js"}

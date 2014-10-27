@@ -9,19 +9,43 @@ body {
   background: rgb(0,40,80);
   color: white;
 }
+
 #screen { 
-  height: 100%;
+  height: 70%;
   width: 100%;
 }
 #output { 
+  width: 50%;
   float: left;
 }
+
 #graphic {
+  /*this batch is for right-pixel-border bug in first graph*/
+  /*remove when done*/
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  border-color: rgb(30,30,30);
+  background: rgb(30,30,30);
+  border-right-style: solid;
+  border-top-style: solid;
+  border-width: 2px;
+
   position: relative;
-  /*background: black;*/
   height: 100%;
   width: 50%;
   float: right;
+  opacity: 0.7;
+}
+
+#graphic div {
+  position: absolute;
+  bottom: 0px;
+  border: solid;
+  border-color: rgb(50,50,50);
+  border-width: 1px;
+  /*width: 20px;*/
+  height: 100%;
+  background-color: rgb(50,50,50);
 }
 
 #debug { 
@@ -35,17 +59,17 @@ body {
   /*border-style: solid;*/
   /*border-width: 0px;*/
   /*border-top-width: 1px;*/
-  height: 0px;
+  height: 30%;
   bottom: 0px;
   background: rgb(48,10,36);
   /*border-color: rgb(25,25,40);*/
-  padding: 5px;
+  padding: 0px;
   padding-left: 10px;
   position: absolute;
   text-align: left;
   color: white;
   opacity: 0.8;
-  display: none;
+  display: block;
   z-index: 10;
 }
 
@@ -128,12 +152,12 @@ body {
 }
 
 #pomsheet-input {
-  margin-top: 5px; 
+  margin-top: 5px;
   border: 0px;
   width: 80%;
 }
 
-#android {
+#android, #ipad {
   position: relative;
   font-family: 'Helvetica';
   color: rgb(120,120,200);
@@ -186,21 +210,107 @@ body {
 }
 
 #pomsheet-area {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  position: relative;
   margin: 0px;
   font-family: 'Terminus';
-  padding-top: 10px;
-  padding-left: 10px;
+  padding: 10px;
+  padding-top: 8px;
+  padding-left: 15px;
+  padding-right: 15px;
+  
+  /*this padding makes space for the menu bar */
+  /*it should be the same size as #pom-options is tall, plus padding */
+  padding-bottom: 43px;
+
   border-style: none;
   outline: none;
-  border-color: Transparent;
+  border-color: rgb(20,20,20);
+  /*border-color: Transparent;*/
   background-color: Transparent;
+  border-width: 1px;
   color: white;
-  overflow: auto;
-  width:110%;
+  overflow: hidden;
+  /*top: 3%;*/
+  width: 100%;
   height: 100%;
   resize: none;
   z-index: 10;
 }
+
+/* opacity and color are set redundantly to #right-half. Fix */
+#ipad #pomsheet-area {
+  font-family: 'Helvetica';
+  font-size: 2em;
+  background: black;
+  height: 100%;
+  opacity: 0.7;
+}
+
+/* Quick and kludgy */
+#ipad #pomsheet-options {
+  position: absolute;
+  bottom: 1em;
+  height: 3.5em;
+  font-size: 2em;
+  /*background: black;*/
+  font-family: "Helvetica";
+  right: 40px;
+  z-index: 10;
+}
+#ipad #pomsheet-bar {
+  font-family: 'Helvetica';
+  height: 2em;
+}
+
+
+#pomsheet-options {
+  font-family: 'Terminus';
+  
+  /*these three adjust the width for sake of upper border*/
+  width: auto;
+  left: 10px;
+  right: 10px;
+
+  /*margin-right: 1000px;*/
+  text-align: right;
+  height: 50px;
+  color: rgb(70,70,70);
+  /*color: rgb(200,40,50);*/
+  /*background: rgb(10,10,10);*/
+  position: absolute;
+  /*border-top-style: solid;*/
+  border-color: rgb(25,25,25);
+  border-width: 1px;
+  bottom: 0px;
+  z-index: 1;
+  opacity: 1;
+}
+#pomsheet-bar {
+  height: 18px;
+}
+
+#pomsheet-poms, #pomsheet-words {
+  /*color: rgb(40,40,40);*/
+  position: relative;
+  /*top: 10px;*/
+  right: 0px;
+  padding: 2px;
+  /*padding-top: 5px;*/
+  padding-right: 15px;
+  padding-left: 10px;
+  /*padding-top: 5px;*/
+  /*padding-bottom: 5px;*/
+  /*background: rgb(25,25,20);*/
+  float: right;
+}
+#ipad #pomsheet-poms, #ipad #pomsheet-words {
+  padding-left: 50px;
+  padding-right: 15px;
+
+}
+
 
 #twenty-four {
   width: 100%;
@@ -211,6 +321,7 @@ body {
 #pom-left { font-size: 0.8em; margin: 5px; float: left; }
 
 #pom-right { font-size: 0.8em; margin: 5px; float: right; }
+
 
 
 #time-marker {
@@ -287,7 +398,8 @@ body {
   text-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2); 
 }
 
-#android.gradient, .gradient { 
+/*Not sure why this is behaving weird; just .gradient doesn't work. Check.*/
+#android.gradient, #ipad.gradient, .gradient { 
   background: #c48787; /* Old browsers */
   background: -moz-radial-gradient(center, ellipse cover,  #c48787 1%, #010235 100%); /* FF3.6+ */
   background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(1%,#c48787), color-stop(100%,#010235)); /* Chrome,Safari4+ */

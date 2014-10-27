@@ -1,3 +1,18 @@
+/*
+ *  TwentyFourBar
+ *  EventStream, for clock activation broadcasting
+ *  Timer Clock
+ *  Turnip, a max/average/minimum pacer
+ *  Underchart, for translucent background charts on mobile 
+ *  Buttons and Weeklies
+ *  Vertical Meter Bars
+ *  Key Events, Global
+ *  Key Events, Textarea
+ *  User-agent Specific Triggers
+ *  Stats and Graph
+ */ 
+
+
 //BEGIN TwentyFourBar and desiderata
 function initHorizontalMeterBar(container,target,margin) {
   for (var i = 0; i < target; i++) {
@@ -68,8 +83,7 @@ function setTwentyFour() {
   });
 }
  setTwentyFour();
-//END TwentyFourBar and desiderata
-
+//END TwentyFourBar
 
 //BEGIN EvenStream
 
@@ -411,6 +425,8 @@ var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
 // $("#pomsheet-area").load("/stuff");
 
 
+//BEGIN Buttons and Weeklies
+
 var daily_data = {}
 daily_data.tags = ["R","RR","WW","W",">"];
 daily_data.categories = ["Read","Journal Writing","Vicara"]
@@ -471,7 +487,7 @@ function initWeeklies(day_of_month) {
 }
 
 initWeeklies(7);
-
+//END Buttons and Weeklies
 
 //BEGIN Vertical Meter Bars
 function initMeterV(container,target,margin) {
@@ -488,62 +504,84 @@ function fillMeterV(container,done,color) {
 }
 //END Vertical Meter Bars
 
-// $(function(){
-//   $('#pomsheet-area').keydown(function(){
-//     setTimeout(function() {
-//       $('#output').text($('#txt').val());
-//     }, 50);
-//   });
-// });
+
+//BEGIN Key Events, Global
+var keyMap = {};
 
 
+$("*").keydown(keyDownHandler);
+$("*").keyup(keyUpHandler);
+
+function keyDownHandler(event) {
+  var keyCode = event.keyCode || event.which;
+  keyMap[keyCode] = true;
+  if (keyCode == 192) { toggleConsole(event) }
+  if (keyMap[17] && keyMap[221]) { activateNotes();
+  }
+  if (keyMap[17] && keyMap[219]) { activatePomsheet(); }
+  false //prevents need for event.preventDefault(), woot!
+}
+
+function keyUpHandler(event) {
+  var keyCode = event.keyCode || event.which;
+  delete keyMap[keyCode];
+}
+function activatePomsheet() { 
+  $("#pomsheet-area").val("Pomsheet Activated!");
+}
+function activateNotes() { 
+  $("#pomsheet-area").val("Notes Activated!");
+}
+
+
+function toggleConsole() {
+  var display = $("#debug").css("display");
+  var output = $("#debug");
+  var screen = $("#screen");
+  var consoleClosed = {
+    display: "none",
+    height: "0%",
+    // ease:Expo.easeInOut
+  };
+  var consoleOpen = {
+    display: "block",
+    height: "30%",
+    // ease:Expo.easeInOut
+  };
+
+  var screenScrunched = { 
+    height: "70%", 
+    // ease:Expo.easeInOut 
+  };
+  var screenUnscrunched = { 
+    height: "100%",
+    // ease:Expo.easeInOut
+  };
+
+  if (display == "block") {
+    TweenMax.to(output,0.1,consoleClosed);
+    TweenMax.to(screen,0.1,screenUnscrunched);
+  } else {
+    TweenMax.to(output,0.1,consoleOpen);
+    TweenMax.to(screen,0.1,screenScrunched);
+  }
+  return false;
+}
+// END Key Events, Global
+
+// BEGIN Key Events, Text Area
 var keyTimer = null, 
     duringDelay = 10,
     afterDelay = 1000, 
     typingBuffer = "",
     lastTyped = "";
 var startTime, stopTime, duringTime;
+var typingGraphData = [];
+var lastWordCount = 0;
 
-$("*").keydown(toggleConsole);
+$("#pomsheet-area").keydown(typingHandler);
 
-function toggleConsole(event) {
-  var keyCode = event.keyCode || event.which;
-  if (keyCode == 192) {
-      var display = $("#debug").css("display");
-      var output = $("#debug");
-      var screen = $("#screen");
-      var consoleClosed = {
-        display: "none",
-        height: "0%",
-        // ease:Expo.easeInOut
-      };
-      var consoleOpen = {
-        display: "block",
-        height: "30%",
-        // ease:Expo.easeInOut
-      };
-
-      var screenScrunched = { 
-        height: "70%", 
-        // ease:Expo.easeInOut 
-      };
-      var screenUnscrunched = { 
-        height: "100%",
-        // ease:Expo.easeInOut
-      };
-
-      if (display == "block") {
-        TweenMax.to(output,0.1,consoleClosed);
-        TweenMax.to(screen,0.1,screenUnscrunched);
-      } else {
-        TweenMax.to(output,0.1,consoleOpen);
-        TweenMax.to(screen,0.1,screenScrunched);
-      }
-      return false;
-  }
-}
-
-$("#pomsheet-area").keydown(function (event) {
+function typingHandler(event) {
   //NOTE: returning on enter/space may fix doubling bug
   var keyCode = event.keyCode || event.which;
   var val = this.value,
@@ -579,7 +617,6 @@ $("#pomsheet-area").keydown(function (event) {
   }
 
   function doBeforeTyping() {
-    // p("THIS SHOULD FIRE");
     startTime = new Date().getTime();
   }
 
@@ -594,20 +631,27 @@ $("#pomsheet-area").keydown(function (event) {
     }
     function outputBufferText() {
       $("#output").text("");
-      p(typingBuffer,true);
+      // p(typingBuffer,true);
     }
 
-    function showRunningStats() { 
-      // $("#output").empty();
+    function showRunningStats() {
       outputStats();
     }
   }
   function doAfterTyping() {
     // outputStats();
     clearTypingBuffer();
-    outputDoneText();
+    clearTypingGraphData();
+    clearLastWordCount();
+    // outputDoneText();
     function clearTypingBuffer() {
       typingBuffer = "";
+    }
+    function clearTypingGraphData() {
+      typingGraphData = [];
+    }
+    function clearLastWordCount() {
+      lastWordCount = 0;
     }
     function outputDoneText() {
       $("#output").text("Congratulations! You finished");
@@ -620,17 +664,93 @@ $("#pomsheet-area").keydown(function (event) {
         elapsed_minutes = elapsed_seconds/60,
         chars = typingBuffer.length,
         words = typingBuffer.split(" ").length,
-        cps = Math.round(chars/elapsed_seconds);
+        cps = Math.round(chars/elapsed_seconds*100)/100;
         wpm = Math.round(words/elapsed_minutes);
     p("");
-    p("Keycode: " + event.keyCode);
-    p("Textbox Content Length (Start: ");
-    p("Textbox Content Length (End): ");
+    p("keyCode: " + event.keyCode);
+    p("keyMap: ",true); p(Object.keys(keyMap));
+    p("New Word Count: " + words);
+    p("Last Word Count: " + lastWordCount);
+    p("Chart DIVS (!!): " + typingGraphData.length);
     p("Elapsed (seconds): " + elapsed_seconds);
-    p("Elapsed (minutes): " + elapsed_minutes)
+    p("Elapsed (minutes): " + elapsed_minutes);
     p("Buffer Characters: " + chars);
     p("Buffer Words: " + words);
     p("CPS Typed: " + cps);
     p("WPM Typed: " + wpm);
+    // p("typingGraphData: " + typingGraphData);
+    if (words > lastWordCount && words > 15) {
+      typingGraphData.push(wpm);
+      if (words > 20) {
+        updateGraph(typingGraphData);
+      } else {
+        // $("#graph").text("HYEEHAAW!");
+        // do a countdown or something
+      }
+    }
+    lastWordCount = words;
   }
-});
+}
+//END Key Events, Text Area
+
+//BEGIN Stats and Graph
+function updateGraph(data) {
+  var width = 100/data.length;
+  // p(wpm);
+  // $("#output").text(data + " " + width);
+  var max = Math.max.apply(Math,data);
+  var min = Math.min.apply(Math,data);
+  var lastWPM = data[data.length-1];
+  var barPosition = (lastWPM-min)/(max-min)*100 + "%";
+  // p(barPosition + "!!!!!");
+
+  // I shouldn't have to do this; get rid of it at some point
+  // Warning: the jQuery append assumes this is happening 
+  $("#graphic div").remove();
+
+  d3.select("#graphic")
+    .selectAll("div")
+      .data(data)
+    .enter().append("div")
+      .style("width", function(d) {
+        return width + "%";
+      })
+      .style("left", function(d,i) { 
+        return width*i + "%";
+      })
+      .style("height", function(d) { 
+        return (d-min)/(max-min)*100 + "%";
+      });
+  d3.select("#graphic")
+    .append("div")
+      .style("position","absolute")
+      .style("bottom","0px")
+      .style("width","100%")
+      .style("height",barPosition)
+      .style("background","Transparent")
+      .style("border-top-style", "solid")
+      .style("border-top-width", "2px")
+      .style("border-top-color", "rgb(100,100,200)")
+      .style("opacity",1);
+  $("#graphic").append("<div id='typing-max'>"+max+"</div>");
+  $("#graphic").append("<div id='typing-min'>"+min+"</div>");
+  $("#typing-max").css({ 
+    height: "12px",
+    position: "absolute",
+    zIndex: 12,
+    top: "10px",
+    left: "10px",
+  });
+  $("#typing-min").css({
+    height: "12px",
+    position: "absolute",
+    zIndex: 12,
+    bottom: "10px",
+    left: "10px"
+  });
+}
+//END Stats and Graph
+
+//BEGIN User Agent-specific triggers
+if (navigator.userAgent.match(/iPad/i)) { toggleConsole();}
+//END User Agent-specific triggers

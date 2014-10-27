@@ -1,6 +1,7 @@
 //BEGIN Print Helpers
-function r(whatever) {
-  $("#output").text(whatever);
+function r(whatever,noBreak) {
+  $("#output").text("");
+  return p(whatever,noBreak);
 }
 
 function printString(whatever,noBreak) { 
