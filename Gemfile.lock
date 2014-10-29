@@ -81,6 +81,7 @@ DEPENDENCIES
   async_sinatra
   dotenv
   dropbox-sdk
+  guard
   guard-livereload
   haml
   json
