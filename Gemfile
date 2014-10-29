@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 ruby "2.1.2"
 
 group :development do
+  gem 'guard'
   gem 'dotenv'
   gem 'rack-livereload'
   gem 'guard-livereload', require: false
