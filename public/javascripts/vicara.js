@@ -10,6 +10,7 @@
  *  Key Events, Textarea
  *  User-agent Specific Triggers
  *  Stats and Graph
+ *  Minimap and Scrollbar
  */ 
 
 
@@ -421,9 +422,7 @@ function drawUnderChart(turnipData) {
 
 var meterLabels = ["Yesterday","Average","Target","Record","Vicara"];
 
-
-// $("#pomsheet-area").load("/stuff");
-
+// p("HELLO!!!");
 
 //BEGIN Buttons and Weeklies
 
@@ -516,9 +515,9 @@ function keyDownHandler(event) {
   var keyCode = event.keyCode || event.which;
   keyMap[keyCode] = true;
   if (keyCode == 192) { toggleConsole(event) }
-  if (keyMap[17] && keyMap[221]) { activateNotes();
+  if (keyMap[18] && keyMap[221]) { activateNotes();
   }
-  if (keyMap[17] && keyMap[219]) { activatePomsheet(); }
+  if (keyMap[18] && keyMap[219]) { activatePomsheet(); }
   false //prevents need for event.preventDefault(), woot!
 }
 
@@ -624,6 +623,7 @@ function typingHandler(event) {
     pushToTypingBuffer();
     outputBufferText();
     showRunningStats();
+    updateMinimap();
 
     function pushToTypingBuffer() {
       lastTyped = $("#pomsheet-area").val()[start];
@@ -754,3 +754,58 @@ function updateGraph(data) {
 //BEGIN User Agent-specific triggers
 if (navigator.userAgent.match(/iPad/i)) { toggleConsole();}
 //END User Agent-specific triggers
+
+
+//BEGIN Textarea and Minimap
+Draggable.create("#pomsheet-scroller-container", {
+  type:"x,y", 
+  edgeResistance:1, 
+  bounds: "#pomsheet-scroller",
+  onDrag: dragMiniMap
+});
+
+function dragMiniMap() {
+  var pomsheet = $("#pomsheet-area")[0];
+  var minimap = $("#pomsheet-scroller")[0];
+
+  var nubPosition = this.y;
+
+  //108px is the height of the scroll nub plus options; refactor
+  var nubLowest = parseInt($("#pomsheet-scroller").css("height"))-108;
+
+  var nubPercent = nubPosition/nubLowest;
+
+  var pomsheetHeight = pomsheet.scrollHeight;
+  var pomsheetTop = pomsheet.scrollTop;
+
+  var minimapHeight = minimap.scrollHeight;
+  var minimapTop = minimap.scrollTop;
+
+  var desiredPomsheetTop = pomsheetHeight*nubPercent;
+  var desiredMinimapTop = minimapHeight*nubPercent;
+
+  r(nubPercent);
+  p(pomsheetHeight);
+  p(minimapHeight);
+  p(desiredPomsheetTop);
+  pomsheet.scrollTop = desiredPomsheetTop;
+  minimap.scrollTop = desiredMinimapTop;
+}
+
+$("#pomsheet-area").load("/stuff",updateMinimap);
+
+function updateMinimap() {
+  $("#pomsheet-scroller").val($("#pomsheet-area").val());
+}
+
+// var scrollerScale = '1,1';
+// $("#minimap").css ({
+//   'transform': 'scale('+scrollerScale+')',
+//   '-ms-transform': 'scale('+scrollerScale+')',
+//   '-webkit-transform': 'scale('+scrollerScale+')',
+//   'transform-origin': 'top right',
+//   '-ms-transform-origin': 'top right',
+//   '-webkit-transform-origin': 'top right'
+// });
+
+// p("We got to the end!");

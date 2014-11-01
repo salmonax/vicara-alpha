@@ -209,21 +209,23 @@ body {
   margin-top: 12px;
 }
 
-#pomsheet-area {
+#pomsheet-area, #pomsheet-scroller {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   position: relative;
   margin: 0px;
   font-family: 'Terminus';
+  font-size: 12px;
   padding: 10px;
   padding-top: 8px;
   padding-left: 15px;
-  padding-right: 15px;
+  padding-right: 125px;
+  /*padding-right: 15px;*/
   
   /*this padding makes space for the menu bar */
   /*it should be the same size as #pom-options is tall, plus padding */
   padding-bottom: 43px;
-
+  float: left;
   border-style: none;
   outline: none;
   border-color: rgb(20,20,20);
@@ -237,6 +239,44 @@ body {
   height: 100%;
   resize: none;
   z-index: 10;
+}
+/*This needs to have wordwrap width calculated correctly*/
+/*Can also use better positioning method than absolute, right: 0*/
+#pomsheet-scroller {
+  /*float: right;*/
+  position: absolute;
+  right: 0px;
+  width: 110px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  font-size: 2px;
+  padding: 0px;
+  padding-bottom: 43px;
+  z-index: 11;
+}
+
+#pomsheet-scroller-container {
+  position: absolute;
+  right: 0px;
+  width: 110px;
+  /* this height is 65 + 43, 43 being the lower margin */
+  height: 108px;
+  /*float: right;*/
+  /*background: yellow;*/
+  z-index: 12;
+  opacity: 0.2;
+}
+#pomsheet-scroller-nub {
+  position: relative;
+  height: 65px;
+  width: 110px;
+  background: white;
+}
+#pomsheet-scroller-margin {
+  /*bottom: 0px;*/
+  height: 20px;
+  width: 110px;
+  background: red;
 }
 
 /* opacity and color are set redundantly to #right-half. Fix */

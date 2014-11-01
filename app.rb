@@ -38,12 +38,13 @@ def get_web_auth
 end
 
 def pomsheet
-  if request.host != "192.168.43.72" and request.host != "localhost" and request.host != "192.168.42.250"
+  if request.host != "192.168.43.72" and request.host != "localhost" and request.host != "192.168.42.250" and request.host != "54.68.163.121"
     authed?
     client = get_dropbox_client
     @file = client.get_file("2014 Pomodoro.txt")
+  elsif request.host == "54.68.163.121" #hmm, should probably put this in gitignore
+    @file = File.read("/home/ubuntu/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
   else
-    # grab file directory if testing locally via phonegap
     @file = File.read("/home/salmonax/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
   end
   @file
@@ -56,8 +57,8 @@ end
 # "#{@env['rack.url_scheme']}://#{request.host_with_port}/login"
 
 before do 
-  # pp request.host
-  if !request.ssl? and request.host != "localhost" and request.host != "192.168.42.250" and request.host != "192.168.42.94"
+  pp request.host
+  if !request.ssl? and request.host != "localhost" and request.host != "192.168.42.250" and request.host != "192.168.42.94" and request.host != "54.68.163.121"
     redirect "https://#{request.host_with_port}#{request.path}"
   end
 end
@@ -74,9 +75,12 @@ get "/" do
   # authed?
   # redirect '/stuff'
   # pomsheet
-  authed? if request.host != "192.168.42.250" and request.host != "localhost" and request.host != "192.168.43.72"
+
+  authed? if request.host != "192.168.42.250" and request.host != "localhost" and request.host != "192.168.43.72" and request.host != "54.68.163.121"
   haml :android
+
   # request.host
+  # haml :root
 end
 
 get "/sandbox" do
@@ -212,7 +216,7 @@ end
 get '/data/arbolade' do
   content_type :json
   pom_parser = PomParser.new(pomsheet, last: 80)
-  treemap_hash = pom_parser.full[:categories]["Vicara"]
+  treemap_hash = pom_parser.full[:categories]["Locksmith"]
   Treemap.new(treemap_hash).full.to_json
 end
 
@@ -302,7 +306,7 @@ __END__
   ==
   Features:
   --
-  - redcarpet for inline markdown
+  - redcarpet for inline markdown! FINALLY!
   - thin for webserver
   - sessions enabled, dotenv for .env loading
   - rack/guard-livereload for extensionless reloading

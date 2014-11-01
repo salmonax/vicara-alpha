@@ -24,7 +24,11 @@
     #bottom-half
       #arbolade
   #right-half
-    %textarea#pomsheet-area{readonly: false, spellcheck: 'false'}
+    %textarea#pomsheet-area{readonly: false, spellcheck: 'false', }
+    #minimap
+      %textarea#pomsheet-scroller{readonly: true, spellcheck: 'false'}
+    #pomsheet-scroller-container
+      #pomsheet-scroller-nub
     #pomsheet-options
       #pomsheet-bar
         ="--------------------<br>"
