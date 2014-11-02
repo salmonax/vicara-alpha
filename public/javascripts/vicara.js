@@ -757,21 +757,24 @@ if (navigator.userAgent.match(/iPad/i)) { toggleConsole();}
 
 
 //BEGIN Textarea and Minimap
-Draggable.create("#pomsheet-scroller-container", {
+miniNub = Draggable.create("#minimap-scroller-container", {
   type:"x,y", 
   edgeResistance:1, 
-  bounds: "#pomsheet-scroller",
-  onDrag: dragMiniMap
+  bounds: "#minimap-area",
+  onDragStart: function() { $("#pomsheet-area").data("isMiniDragging",true); },
+  onDrag: dragMiniMap,
+  onDragEnd: function() { $("#pomsheet-area").data("isMiniDragging",false); } 
 });
 
 function dragMiniMap() {
   var pomsheet = $("#pomsheet-area")[0];
-  var minimap = $("#pomsheet-scroller")[0];
+  var minimap = $("#minimap-area")[0];
 
   var nubPosition = this.y;
+  $("#pomsheet-area").data("miniNubY",nubPosition);
 
   //108px is the height of the scroll nub plus options; refactor
-  var nubLowest = parseInt($("#pomsheet-scroller").css("height"))-108;
+  var nubLowest = (parseInt($("#minimap-container").css("height"))-108);
 
   var nubPercent = nubPosition/nubLowest;
 
@@ -781,13 +784,19 @@ function dragMiniMap() {
   var minimapHeight = minimap.scrollHeight;
   var minimapTop = minimap.scrollTop;
 
-  var desiredPomsheetTop = pomsheetHeight*nubPercent;
   var desiredMinimapTop = minimapHeight*nubPercent;
+  
+  var desiredPomsheetTop = pomsheetHeight*nubPercent;
 
-  r(nubPercent);
-  p(pomsheetHeight);
-  p(minimapHeight);
-  p(desiredPomsheetTop);
+  r("nubPercent: ",true); p(nubPercent);
+  p("nubY: ",true); p(this.y);
+  // p(this);
+  // p("CSS height:",true); p($("#minimap-area").css("height")/10);
+  p("pomsheetHeight: ",true); p(pomsheetHeight);
+  p("minimapHeight: ",true); p(minimapHeight);
+  p("desiredPomSheetTop: ", true); p(desiredPomsheetTop);
+  p("desiredMinimapTop: ",true); p(desiredMinimapTop);
+
   pomsheet.scrollTop = desiredPomsheetTop;
   minimap.scrollTop = desiredMinimapTop;
 }
@@ -795,8 +804,32 @@ function dragMiniMap() {
 $("#pomsheet-area").load("/stuff",updateMinimap);
 
 function updateMinimap() {
-  $("#pomsheet-scroller").val($("#pomsheet-area").val());
+  $("#minimap-area").val($("#pomsheet-area").val());
 }
+
+$("#pomsheet-area").data("isMiniDragging",false);
+$("#pomsheet-area").data("miniNubY", 0.0);
+
+$("#pomsheet-area").on("scroll",function() { 
+  if ($(this).data("isMiniDragging") == false) {
+    var minimap = $("#minimap-area")[0];
+    var nubLowest = (parseInt($("#minimap-container").css("height"))-108);
+    var minimapHeight = minimap.scrollHeight;
+    var pomsheetPercent = this.scrollTop/this.scrollHeight;
+
+
+    r(pomsheetPercent);
+    p($(this).data("miniNubY"));
+    p(nubLowest);
+    var nubY = $(this).data("miniNubY");
+    var nubPosition = nubLowest*pomsheetPercent
+    TweenMax.set("#minimap-scroller-container",{ transform: "translateY("+nubPosition+"px)"});
+
+    var desiredMinimapTop = minimapHeight*pomsheetPercent;
+    minimap.scrollTop = desiredMinimapTop;
+
+  }
+});
 
 // var scrollerScale = '1,1';
 // $("#minimap").css ({
@@ -809,3 +842,5 @@ function updateMinimap() {
 // });
 
 // p("We got to the end!");
+
+// Draggable.create("#minimap-container", {type:"scrollTop", edgeResistance:0.5});

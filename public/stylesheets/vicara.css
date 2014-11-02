@@ -51,7 +51,7 @@ body {
 #debug { 
   box-sizing: border-box;
   -moz-box-sizing: border-box;
-  font-family: Terminus;
+  font-family: 'Terminus (TTF)';
   font-size: 14px;
   margin: 0px;
   width: 100%;
@@ -208,18 +208,27 @@ body {
   right: 0;
   margin-top: 12px;
 }
-
-#pomsheet-area, #pomsheet-scroller {
+#pomsheet-area-container {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
+  position: absolute;
+  width: 90%;
+  /*background: red;*/
+  height: 100%;
+  overflow: hidden;
+  padding-bottom: 51px;
+}
+
+
+#pomsheet-area, #minimap-area {
   position: relative;
   margin: 0px;
-  font-family: 'Terminus';
-  font-size: 12px;
+  font-family: 'Terminus (TTF)';
+  font-size: 14px;
   padding: 10px;
   padding-top: 8px;
   padding-left: 15px;
-  padding-right: 125px;
+  /*padding-right: 100px;*/
   /*padding-right: 15px;*/
   
   /*this padding makes space for the menu bar */
@@ -233,32 +242,54 @@ body {
   background-color: Transparent;
   border-width: 1px;
   color: white;
-  overflow: hidden;
+  /*overflow: hidden;*/
   /*top: 3%;*/
   width: 100%;
   height: 100%;
   resize: none;
   z-index: 10;
 }
-/*This needs to have wordwrap width calculated correctly*/
-/*Can also use better positioning method than absolute, right: 0*/
-#pomsheet-scroller {
-  /*float: right;*/
+#minimap-container {
+  float: right;
   position: absolute;
   right: 0px;
-  width: 110px;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  font-size: 2px;
-  padding: 0px;
-  padding-bottom: 43px;
-  z-index: 11;
+  height: 100%;
+  width: 100%;
+  /*background: red;*/
+  /*position: absolute;*/
+  /*opacity 0.5;*/
+  /*transform-origin: top right;*/
+  /*trasnform*/
+
 }
 
-#pomsheet-scroller-container {
+/*This will need to have wordwrap width calculated correctly*/
+/*Can also use better positioning method than absolute, right: 0*/
+#minimap-area {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  /*float: right;*/
+  position: relative;
+  right: 0px;
+  /*width: 200px;*/
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  /*background: blue;*/
+  /*font-size: 2px;*/
+  padding: 0px;
+  transform: scale(0.1,0.1);
+  transform-origin: top right;
+  height: 1000%;
+  /*height: 1000px;*/
+  padding-bottom: 430px;
+  z-index: 11;
+  overflow: hidden;
+}
+
+#minimap-scroller-container {
   position: absolute;
   right: 0px;
-  width: 110px;
+  width: 10%;
   /* this height is 65 + 43, 43 being the lower margin */
   height: 108px;
   /*float: right;*/
@@ -266,17 +297,11 @@ body {
   z-index: 12;
   opacity: 0.2;
 }
-#pomsheet-scroller-nub {
+#minimap-scroller-nub {
   position: relative;
   height: 65px;
   width: 110px;
   background: white;
-}
-#pomsheet-scroller-margin {
-  /*bottom: 0px;*/
-  height: 20px;
-  width: 110px;
-  background: red;
 }
 
 /* opacity and color are set redundantly to #right-half. Fix */
@@ -306,7 +331,7 @@ body {
 
 
 #pomsheet-options {
-  font-family: 'Terminus';
+  font-family: 'Terminus (TTF)';
   
   /*these three adjust the width for sake of upper border*/
   width: auto;
