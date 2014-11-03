@@ -35,10 +35,34 @@
     #pomsheet-options
       #pomsheet-bar
         ="--------------------<br>"
+      #pomsheet-grep-label GREP:
+      %input#pomsheet-grep-input{type: "text"}
       #pomsheet-poms Notes
       #pomsheet-words Pomsheet
     / #pomsheet-area{contenteditable: true, spellcheck: 'false'}
 :css
+  #pomsheet-grep-label { 
+    / background: green;
+    padding: 1px;
+    float: left;
+    overflow: hidden;
+    text-align: left;
+  }
+  / #pomsheet-poms { background: red; }
+  / #pomsheet-words { background: blue; }
+  #pomsheet-grep-input {
+    color: white;
+    margin-left: 5px;
+    background: rgb(15,15,15);
+    position: relative;
+    float: left;
+    width: 40%;
+    border-radius: 0px;
+    border-style: none;
+    padding: 2px;
+    padding-left: 5px;
+    z-index: 20;
+  }
   #poms-done {
     float: left;
     margin-left: 20px;

@@ -172,7 +172,7 @@ function startClock() {
     // rushed this, so redundant calculations
     var minutes_left = parseInt(time_left/1000/60);
     var seconds_left = ((time_left-(minutes_left*1000*60))/1000).toFixed(0);
-    var time_string = minutes_left + ":" + seconds_left;
+    var time_string = minutes_left + ":" + padTime(seconds_left);
 
     $("#poms").text(time_string);
   },1000)
@@ -591,7 +591,6 @@ var typingGraphData = [];
 var lastWordCount = 0;
 
 $("#pomsheet-area").keydown(typingHandler);
-
 function typingHandler(event) {
   //NOTE: returning on enter/space may fix doubling bug
   var keyCode = event.keyCode || event.which;
@@ -704,6 +703,51 @@ function typingHandler(event) {
 }
 //END Key Events, Text Area
 
+
+// p($("#pomsheet-area").val());
+// var lastGrepTyped = "",
+    // grepBuffer = "",
+    grepDuringDelay = 1000;
+$("#pomsheet-grep-input").keydown(grepHandler);
+function grepHandler(event) {
+  // var grepDuringDelay
+  setTimeout(doDuringGrepTyping, grepDuringDelay);
+  function doDuringGrepTyping() { 
+    var input = $("#pomsheet-grep-input").val();
+    // r(input);
+    var greppedArray = grepPomsheetFrom(input);
+    // p(pomsheetArray);
+    var greppedText = greppedArray.join("\n")
+    //remove multiple newlines
+    greppedText = greppedText.replace(/(\r\n|\r|\n){2,}/g, '$1\n');
+    //remove multiple dates
+    greppedText = greppedText.replace(/([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{1,4}\w*\n*){2,}/g,'$1')
+    //remove leading newlines and end dates
+    greppedText = greppedText.replace(/(^\n*|[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{1,4}\w*\n*$)/g,"");
+
+    $("#pomsheet-area").val(greppedText);
+    updateMinimap();
+    // p(greppedText);
+  }
+  function grepPomsheetFrom(input) {
+    expression = "([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{1,4}\w*$|^\s*$|" + input + ")" 
+    var regex = RegExp(expression);
+    output = $.grep(pomsheetArray, function(n,i) { 
+      return regex.test(n);
+    });
+    return output;
+  }
+}
+
+// var fuckJavaScript = "Upkeep"
+// p($.grep(pomsheetArray,function(n,i) { 
+//   var regex = RegExp(fuckJavaScript);
+//   return regex.test(n);
+// }));
+
+
+
+
 //BEGIN Stats and Graph
 function updateGraph(data) {
   var width = 100/data.length;
@@ -810,11 +854,22 @@ function dragMiniMap() {
   minimap.scrollTop = desiredMinimapTop;
 }
 
-// $("#pomsheet-area").load("/stuff",updateMinimap);
+$("#pomsheet-area").load("/stuff",pomsheetLoadHandler);
 
+var pomsheetArray = "";
 function updateMinimap() {
   $("#minimap-area").val($("#pomsheet-area").val());
 }
+function setPomsheetArray() { 
+  pomsheetArray = $("#pomsheet-area").val().split(/\n/);
+}
+
+function pomsheetLoadHandler() {
+  updateMinimap();
+  setPomsheetArray();
+}
+
+
 
 $("#pomsheet-area").data("isMiniDragging",false);
 $("#pomsheet-area").data("miniNubY", 0.0);
@@ -850,3 +905,5 @@ setLeftRight();
 //     showUpdatedTime();
 // }, 1000);
 // updateInfo();
+
+
