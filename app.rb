@@ -216,7 +216,7 @@ end
 get '/data/arbolade' do
   content_type :json
   pom_parser = PomParser.new(pomsheet, last: 80)
-  treemap_hash = pom_parser.full[:categories]["Locksmith"]
+  treemap_hash = pom_parser.full[:categories]
   Treemap.new(treemap_hash).full.to_json
 end
 

@@ -52,7 +52,7 @@ body {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   font-family: 'Terminus (TTF)';
-  font-size: 14px;
+  font-size: 12px;
   margin: 0px;
   width: 100%;
   /*min-height: 24px;*/
@@ -63,7 +63,7 @@ body {
   bottom: 0px;
   background: rgb(48,10,36);
   /*border-color: rgb(25,25,40);*/
-  padding: 0px;
+  padding: 3px;
   padding-left: 10px;
   position: absolute;
   text-align: left;
@@ -512,4 +512,46 @@ body {
   top: 50px;
   right: 50px;
 
+}
+
+#arbolade-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  opacity: 0.7;
+}
+
+#arbolade-grip {
+  text-align: left;
+  font-size: 11px;
+  padding: 3px;
+  padding-left: 5px;
+  color: white;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  position: absolute;
+  width: 100%;
+  height: 20px;
+  background-color: rgb(40,40,40);
+  border: 1px solid black;
+
+  /*Kludgy crap for making the borders look right*/
+  border-right-width: 2px;
+  border-left-width: 2px;
+
+  z-index: 2;
+}
+#arbolade {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  position: relative;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  border: 1px solid black;
+  /*This is to get the traversal grip into the top*/
+  border-top-width: 20px;
+
+  margin-top: 0px;
 }

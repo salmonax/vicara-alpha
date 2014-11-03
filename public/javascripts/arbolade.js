@@ -1,35 +1,12 @@
-$("#arbolade").css({
-  position: "relative",
-  left: 0,
-  width: "100%",
-  height: "100%",
-  backgroundColor: "black",
-  boxSizing: "border-box",
-  border: "1px solid black",
-  opacity: "0.7"
-});
-$("#connection + #arbolade")
-  .css("height","50%");
+/*
+*  Data Building and DOM Functions
+*  Arbolade
+*  Callbacks and Related
+*
+* NOTE: this is still a mess and hurting for a third rewrite.
+*/
 
-$.getJSON('/data/arbolade', function(data){
-  var protoCells = buildSortedCells(data);
-  
-  var clicked = "Vicara"
-
-  $("#arbolade").on("touch click","div",function() { 
-    var clicked = $(this).data("name");
-    childLayerData = data.children.filter(function(item) { 
-      return item.name == clicked;
-    })[0];
-    var protoCells = buildSortedCells(childLayerData);
-    // this is where the new layer would be drawn!
-    // $(this).css("display","none");
-    // arbolade(protoCells);
-  });
-  arbolade(protoCells);
-
-});
-
+//Begin Data Building and DOM Functions
 function rectangle(x,y,w,h,color,border,text,name) {
   var n = $("#arbolade > div").length;
   $("#arbolade").append("<div id = 'rect-" + n + "'></div>");
@@ -61,7 +38,7 @@ function buildNamesAndValues(data,top) {
     top_object.values = [];
     top_object.names = [];
     if (data.size) { 
-      top_array.values[0] = [data.size]; 
+      top_object.values[0] = [data.size]; 
     } else if (data.children) {
       for (var i=0; i < data.children.length; i++) {
         top_object.names[i] = data.children[i].name;
@@ -94,10 +71,10 @@ function buildSortedCells(data) {
   });
   return sortedObjects.sort(function(a,b) { return b.value - a.value; });
 }
-// function clearCells(data) {
-//   // $("#arbolade")
-// }
+//END Data Building Functions
 
+
+//BEGIN Arbolade
 function arbolade(protoCells) {
   //a layer object could keep totals
   var cells = protoCells;
@@ -108,6 +85,9 @@ function arbolade(protoCells) {
   drawCells();
 
   //coupled to stringRGB(), needs to be moved elsewhere
+  function drawGrip() {
+
+  }
   function drawCells() {
     cells.forEach(function(cell,i) {
       var colorValue = (80*cell.percent/100+30).toFixed(0);
@@ -136,8 +116,6 @@ function arbolade(protoCells) {
 
     });
   }
-
-  // p(" !! " + cramCellsLeft(2))
 
   function setCellLabels() {
     cells.forEach(function(cell, i) { 
@@ -176,6 +154,58 @@ function arbolade(protoCells) {
     });
   }
 }
+//END Arbolade
+
+
+//BEGIN Callbacks and Related
+
+$.getJSON('/data/arbolade', function(data){
+  initArbolade();
+
+  $("#arbolade-grip").on("touch click",jumpToTopAndReload);
+  function jumpToTopAndReload() {
+    var topData = $("#arbolade-grip").data("top");
+    var parentProtoCells = buildSortedCells(topData);
+    $("#arbolade > div").remove();
+    arbolade(parentProtoCells);
+  }
+
+
+  $("#arbolade").on("touch click","div",jumpToChildAndReload);
+  function jumpToChildAndReload() { 
+    var clicked = $(this).data("name");
+    // r(clicked);
+    var newLayer =  $("#arbolade-grip").data("layer");
+    var isMaximized = $(this).data("clicked");
+    
+    newLayer += (isMaximized ? 1 : -1);
+    $("#arbolade-grip").data({ layer: newLayer });
+
+    $("#arbolade-grip").text(clicked);
+    //filters children for clicked!
+    childLayerData = data.children.filter(function(item) { 
+      return item.name == clicked;
+    })[0];
+
+    if (childLayerData.children) {
+      var protoCells = buildSortedCells(childLayerData);
+      // this is where the new layer would be drawn!
+      p("AAHHH!!!");
+      $("#arbolade > div").remove();
+      arbolade(protoCells);
+    } else {
+      p("No children!!!!!");
+    }
+  }
+
+  function initArbolade() { 
+    var protoCells = buildSortedCells(data);
+    $("#arbolade-grip").data({ top: data, layer: 0 });
+    $("#arbolade-grip").text(data.name);
+    arbolade(protoCells);
+  }
+
+});
 
 
 $("#arbolade").on('touch click',"div",touchCell);
@@ -228,3 +258,4 @@ function touchCell() {
     TweenMax.to(me, 0, {zIndex:"0", delay:0.2});
   }
 }
+//END Callbacks and Related

@@ -1,5 +1,6 @@
 /*
- *  TwentyFourBar
+ *  Interval Updates and Time Helpers
+ *  TwentyFourBar and Desiderata
  *  EventStream, for clock activation broadcasting
  *  Timer Clock
  *  Turnip, a max/average/minimum pacer
@@ -13,8 +14,36 @@
  *  Minimap and Scrollbar
  */ 
 
+//BEGIN Interval Updates and Time Helpers
+var lastUpdateTime = new Date();
+function updateInfo() {
+  requestAnimationFrame(updateInfo);
+  var currentUpdateTime = new Date();
+  if (lastUpdateTime.getSeconds() < currentUpdateTime.getSeconds()) {
+    setTimeMarkerPosition();
+    setLeftRight();
+    updateConnectionDisplay();
+    // showUpdatedTime();
+  }
+  lastUpdateTime = currentUpdateTime;
+}
 
-//BEGIN TwentyFourBar and desiderata
+
+function showUpdatedTime() {
+  var d = new Date();
+  minutes = padTime(d.getMinutes());
+  seconds = padTime(d.getSeconds());
+  milliseconds = padTime(d.getMilliseconds());
+  r("Updated: " + d.getHours() + ":"  + minutes + ":" + seconds + ":" + milliseconds); 
+}
+
+function padTime(digits) {
+  return (digits < 10 ? "0" + digits : digits);
+}
+
+//END Interval Updates and Time Helpers
+
+//BEGIN TwentyFourBar and Desiderata
 function initHorizontalMeterBar(container,target,margin) {
   for (var i = 0; i < target; i++) {
     $("<div class='block'></div>").appendTo(container);
@@ -23,11 +52,6 @@ function initHorizontalMeterBar(container,target,margin) {
     return 100/target + "%";
   });
 }
-
-setInterval(function() {
-    setTimeMarkerPosition();
-    setLeftRight();
-}, 1000);
 
 function decimalTime() {
   var d = new Date();
@@ -88,11 +112,6 @@ function setTwentyFour() {
 
 //BEGIN EvenStream
 
-setInterval(function (){
-  updateConnectionDisplay();
-},1000);
-
-
 function updateOnDropboxWebhook() {
   clearTwentyFour();
   setTwentyFour();
@@ -124,9 +143,7 @@ function updateConnectionDisplay() {
 //END EventStream
 
 //BEGIN Clock
-$('#top-half').data({
-  clicked: false
-});
+$('#top-half').data({ clicked: false });
 
 function postClockStart() { $.post("/timer/start"); }
 function postClockStop() { $.post("/timer/stop"); }
@@ -192,10 +209,6 @@ function getRawTurnipStats() {
     turnipizeTwentyFour(turnipData);
     initTurnipBar("#top-half",turnipData);
     initTurnipBarLabels("#top-half",turnipData);
-    // $("#poms-done").text(data.)
-    // p(data);
-    // drawUnderlayerChart(turnipData);
-    // k(data);
   });
 }
 getRawTurnipStats();
@@ -226,8 +239,7 @@ function turnipizeTwentyFour(turnipData) {
       var turnipColorRGB = stringRGB(turnipColor);
       var turnipBrightRGB = stringRGB(turnipColor,50);
       var turnipBorderRGB = stringRGB(turnipColor,-100);
-      // var turnipBrightRGB = "white";
-      // p("color block " + taskIndex + " to color of block " + turnipIndex);
+
       $("#twenty-four > .block:lt("+taskIndex+")").css({
         backgroundColor: turnipColorRGB,
         borderColor: turnipBorderRGB
@@ -249,13 +261,12 @@ function turnipizeTwentyFour(turnipData) {
       });
     }
     //WARNING: here's some spaghetti that needs to be somewhere else!
+    //Note: figure out why I said that
     for (i = 0; i < turnipData.length; i++) {
       target_total += turnipData[i].target;
     }
 
     setPomsDoneAndNotDone(lastPomsDone,target_total-lastPomsDone);
-    // p(lastPomsDone);
-    // p(lastTaskIndex);
     //STEP 4: clean up my fucking mess
   });
 }
@@ -525,7 +536,8 @@ function keyUpHandler(event) {
   var keyCode = event.keyCode || event.which;
   delete keyMap[keyCode];
 }
-function activatePomsheet() { 
+function activatePomsheet() {
+  // $("#pomsheet-area").load("/stuff",updateMinimap);
   $("#pomsheet-area").val("Pomsheet Activated!");
 }
 function activateNotes() { 
@@ -666,8 +678,7 @@ function typingHandler(event) {
         words = typingBuffer.split(" ").length,
         cps = Math.round(chars/elapsed_seconds*100)/100;
         wpm = Math.round(words/elapsed_minutes);
-    p("");
-    p("keyCode: " + event.keyCode);
+    r("keyCode: " + event.keyCode);
     p("keyMap: ",true); p(Object.keys(keyMap));
     p("New Word Count: " + words);
     p("Last Word Count: " + lastWordCount);
@@ -757,7 +768,7 @@ if (navigator.userAgent.match(/iPad/i)) { toggleConsole();}
 
 
 //BEGIN Textarea and Minimap
-miniNub = Draggable.create("#minimap-scroller-container", {
+Draggable.create("#minimap-scroller-container", {
   type:"x,y", 
   edgeResistance:1, 
   bounds: "#minimap-area",
@@ -790,8 +801,6 @@ function dragMiniMap() {
 
   r("nubPercent: ",true); p(nubPercent);
   p("nubY: ",true); p(this.y);
-  // p(this);
-  // p("CSS height:",true); p($("#minimap-area").css("height")/10);
   p("pomsheetHeight: ",true); p(pomsheetHeight);
   p("minimapHeight: ",true); p(minimapHeight);
   p("desiredPomSheetTop: ", true); p(desiredPomsheetTop);
@@ -801,7 +810,7 @@ function dragMiniMap() {
   minimap.scrollTop = desiredMinimapTop;
 }
 
-$("#pomsheet-area").load("/stuff",updateMinimap);
+// $("#pomsheet-area").load("/stuff",updateMinimap);
 
 function updateMinimap() {
   $("#minimap-area").val($("#pomsheet-area").val());
@@ -831,16 +840,13 @@ $("#pomsheet-area").on("scroll",function() {
   }
 });
 
-// var scrollerScale = '1,1';
-// $("#minimap").css ({
-//   'transform': 'scale('+scrollerScale+')',
-//   '-ms-transform': 'scale('+scrollerScale+')',
-//   '-webkit-transform': 'scale('+scrollerScale+')',
-//   'transform-origin': 'top right',
-//   '-ms-transform-origin': 'top right',
-//   '-webkit-transform-origin': 'top right'
-// });
 
-// p("We got to the end!");
-
-// Draggable.create("#minimap-container", {type:"scrollTop", edgeResistance:0.5});
+//END text area and minimap
+setLeftRight();
+// setInterval(function() {
+//     setTimeMarkerPosition();
+//     setLeftRight();
+//     updateConnectionDisplay();
+//     showUpdatedTime();
+// }, 1000);
+// updateInfo();
