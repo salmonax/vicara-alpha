@@ -81,10 +81,14 @@ body {
 }
 
 #right-half {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
   overflow: hidden;
   background: black;
   width: 60%;
   opacity: 0.7;
+  /*border-style: solid;*/
+  /*border-bottom-width: 108px;*/
 }
 
 #weeklies {
@@ -209,6 +213,8 @@ body {
   right: 0;
   margin-top: 12px;
 }
+
+/*All this CSS is crap; put pomsheet and minimap in single, bordered container*/
 #pomsheet-area-container {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -217,7 +223,16 @@ body {
   /*background: red;*/
   height: 100%;
   overflow: hidden;
-  padding-bottom: 51px;
+  /*background: red;*/
+  border-color: black;
+  border-style: solid;
+  border-width: 0px;
+
+  /*Replacement for old way of bottom padding; same as minimap-container*/
+  border-bottom-width: 43px;
+
+  /*padding-bottom: 51px;*/
+  /*z-index: 100;*/
 }
 
 
@@ -234,7 +249,7 @@ body {
   
   /*this padding makes space for the menu bar */
   /*it should be the same size as #pom-options is tall, plus padding */
-  padding-bottom: 43px;
+  /*padding-bottom: 43px;*/
   float: left;
   border-style: none;
   outline: none;
@@ -251,11 +266,21 @@ body {
   z-index: 1;
 }
 #minimap-container {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
   float: right;
   position: absolute;
   right: 0px;
   height: 100%;
   width: 100%;
+  border-style: solid;
+  border-width: 0px;
+  border-color: black;
+
+  /*New way to pad for pom-options; remove pad-bottoms*/
+  border-bottom-width: 43px;
+
+
   /*background: red;*/
   /*position: absolute;*/
   /*opacity 0.5;*/
@@ -279,10 +304,12 @@ body {
   /*font-size: 2px;*/
   padding: 0px;
   transform: scale(0.1,0.1);
+  -webkit-transform: scale(0.1,0.1);
   transform-origin: top right;
+  -webkit-transform-origin: top right;
   height: 1000%;
   /*height: 1000px;*/
-  padding-bottom: 430px;
+  /*padding-bottom: 430px;*/
   z-index: 11;
   overflow: hidden;
 }
@@ -292,9 +319,9 @@ body {
   right: 0px;
   width: 10%;
   /* this height is 65 + 43, 43 being the lower margin */
-  height: 108px;
+  height: 65px;
   /*float: right;*/
-  /*background: yellow;*/
+  background: yellow;
   z-index: 12;
   opacity: 0.2;
 }
