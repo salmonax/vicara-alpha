@@ -56,7 +56,7 @@ class Task
   end
 
   def is_tag?(string)
-    (string.include?('&') || string.include?('$') || string.upcase == string) && string != 'PDR' && string.include?(':') == false #REALLY shitty TAG check
+    (string.include?('&') || string.include?('$') || string.include?('*') || string.upcase == string) && string != 'PDR' && string.include?(':') == false #REALLY shitty TAG check
   end
 
   def parse_tags(tags)

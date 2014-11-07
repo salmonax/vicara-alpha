@@ -9,9 +9,10 @@
  *  Vertical Meter Bars
  *  Key Events, Global
  *  Key Events, Textarea
- *  User-agent Specific Triggers
+ *  Key Events, Grepper
  *  Stats and Graph
- *  Minimap and Scrollbar
+ *  User-agent Specific Triggers
+ *  Textarea, Minimap, Grepped Weeklies 
  */ 
 
 //BEGIN Interval Updates and Time Helpers
@@ -703,11 +704,8 @@ function typingHandler(event) {
 }
 //END Key Events, Text Area
 
-
-// p($("#pomsheet-area").val());
-// var lastGrepTyped = "",
-    // grepBuffer = "",
-    grepDuringDelay = 1000;
+//BEGIN Key Events, Grepper
+var grepDuringDelay = 1000;
 $("#pomsheet-grep-input").keydown(grepHandler);
 function grepHandler(event) {
   // var grepDuringDelay
@@ -716,7 +714,7 @@ function grepHandler(event) {
     var input = $("#pomsheet-grep-input").val();
     // r(input);
     var greppedArray = grepPomsheetFrom(input);
-    // p(pomsheetArray);
+    // p($pomsheetLines);
     var greppedText = greppedArray.join("\n")
     //remove multiple newlines
     greppedText = greppedText.replace(/(\r\n|\r|\n){2,}/g, '$1\n');
@@ -725,28 +723,24 @@ function grepHandler(event) {
     //remove leading newlines and end dates
     greppedText = greppedText.replace(/(^\n*|[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{1,4}\w*\n*$)/g,"");
 
+    greppedArray = greppedText.split(/\n/);
+    updateWeekliesGraph(greppedArray);
+
     $("#pomsheet-area").val(greppedText);
     updateMinimap();
     // p(greppedText);
   }
   function grepPomsheetFrom(input) {
+    //includes dates AND whitespaces, for further stripping
     expression = "([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{1,4}\w*$|^\s*$|" + input + ")" 
     var regex = RegExp(expression);
-    output = $.grep(pomsheetArray, function(n,i) { 
+    output = $.grep($pomsheetLines, function(n,i) { 
       return regex.test(n);
     });
     return output;
   }
 }
-
-// var fuckJavaScript = "Upkeep"
-// p($.grep(pomsheetArray,function(n,i) { 
-//   var regex = RegExp(fuckJavaScript);
-//   return regex.test(n);
-// }));
-
-
-
+//END Key Events, Grepper
 
 //BEGIN Stats and Graph
 function updateGraph(data) {
@@ -811,7 +805,7 @@ if (navigator.userAgent.match(/iPad/i)) { toggleConsole();}
 //END User Agent-specific triggers
 
 
-//BEGIN Textarea and Minimap
+//BEGIN Textarea, Minimap, Grepped Weeklies
 Draggable.create("#minimap-scroller-container", {
   type:"x,y", 
   edgeResistance:1, 
@@ -856,19 +850,95 @@ function dragMiniMap() {
 
 $("#pomsheet-area").load("/stuff",pomsheetLoadHandler);
 
-var pomsheetArray = "";
+//NOTE: $pomsheetLines is solid candidate for shell var
+var $pomsheetLines = "";
 function updateMinimap() {
   $("#minimap-area").val($("#pomsheet-area").val());
 }
 function setPomsheetArray() { 
-  pomsheetArray = $("#pomsheet-area").val().split(/\n/);
+  $pomsheetLines = $("#pomsheet-area").val().split(/\n/);
 }
-
 function pomsheetLoadHandler() {
   updateMinimap();
+
   setPomsheetArray();
+  updateWeekliesGraph($pomsheetLines);
 }
 
+function updateWeekliesGraph(lines) {
+  var weeklies = [];
+  var i = 0;
+
+  weeklies = buildWeekliesFromLines(lines);
+  // p(weeklies);
+  $("#graphic div").remove();
+  drawWeekliesGraph(weeklies);
+
+  //NOTE: this resembles PomParsley the most; might be basis for replacement
+  function buildWeekliesFromLines(lines) {  
+    function isDate(line) {
+      return /[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{1,4}\w*$/.test(line);
+    }
+
+    function isTask(line) {
+      return /^([0-9]|[01][0-9]|2[0-4])(\.[0,5]|[\s,\t]).*[\s,\t]((?:\[|\()?X(\]|\))?)+$/.test(line);
+    }
+    function countPoms(line) {
+      //This can probably be much shorter.
+      return line.match(/((\[|\()?X(\]|\))?)+$/)[0].replace(/(\[|\]|\(|\))/g,"").length
+    }
+    var line, week;
+    var weekTotals = [];
+    for (i = 0; i < 52; i++) { weekTotals.push(0); }
+    for (i = 0; i < lines.length; i++) {
+      line = lines[i];
+      if (isDate(line)) {
+        week = weekNumFromLine(line);
+ 
+      } else if (isTask(line)) {
+        // p(week + " " + countPoms(line));
+        weekTotals[week] += countPoms(line);
+      }
+    }
+    return weekTotals;
+  }
+
+  function drawWeekliesGraph(data) {
+    var max = Math.max.apply(Math,data);
+    var width = 100/52;
+    $("#graphic").append("<div id=max>"+max+"</div>")
+    $("#graphic > #max").css({position: "absolute", backgroundColor: "Transparent",borderStyle:"none"});
+    d3.select("#graphic")
+      .selectAll("div")
+        .data(data)      
+      .enter().append("div")
+      .style("width", function(d) { 
+        return width + "%";
+      })
+      .style("height", function(d) { 
+        return d/max*100 + "%";
+      })
+      .style("left", function(d,i) {
+        return width*i + "%"
+      })
+  }
+}
+
+function dateFromString(string) { 
+  var parts = string.split('/');
+  return new Date(parts[2],parts[0]-1,parts[1]);
+}
+function weekNum(date) {
+  // p(typeof date);
+  // var date = new Date();
+  var first = new Date(date.getFullYear(),0,1);
+  return Math.floor((date-first)/1000/60/60/24/7+1);
+  // return 5;
+}
+
+function weekNumFromLine(line) {
+  return weekNum(dateFromString(line));
+}
 
 
 $("#pomsheet-area").data("isMiniDragging",false);
@@ -894,9 +964,10 @@ $("#pomsheet-area").on("scroll",function() {
 
   }
 });
+//END Textarea, Minimap, Grepped Weeklies
 
 
-//END text area and minimap
+
 setLeftRight();
 // setInterval(function() {
 //     setTimeMarkerPosition();
@@ -904,6 +975,7 @@ setLeftRight();
 //     updateConnectionDisplay();
 //     showUpdatedTime();
 // }, 1000);
+//*** This triggers a rAF at file-beginning:
 // updateInfo();
 
 
