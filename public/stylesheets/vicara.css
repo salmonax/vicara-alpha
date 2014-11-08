@@ -583,3 +583,31 @@ body {
 
   margin-top: 0px;
 }
+
+.month-line, #year-position { 
+  position: relative;
+  height: 100%;
+  width: 1px;
+  border-style: none !important;
+  /*Um, in hurry... probably some jQuery making this necessary*/
+  background-color: rgb(100,100,200) !important;
+  opacity: 0.3;
+}
+
+#year-position { 
+  background-color: red !important;
+  opacity: 0.5;
+}
+
+.month-label { 
+  /*These importants are necessary due to D3's selections; fix*/
+  padding-left: 3px;
+  height: 15px !important;
+  /*left: 0%;*/
+  bottom: 0px;
+  position: relative;
+  background-color: Transparent !important;
+  color: white;
+  z-index: 20;
+  opacity: 0.7;
+}

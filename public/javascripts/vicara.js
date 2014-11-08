@@ -723,6 +723,7 @@ function grepHandler(event) {
     //remove leading newlines and end dates
     greppedText = greppedText.replace(/(^\n*|[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{1,4}\w*\n*$)/g,"");
 
+    //WARNING: these calls are the slowest thing here!
     greppedArray = greppedText.split(/\n/);
     updateWeekliesGraph(greppedArray);
 
@@ -868,11 +869,18 @@ function pomsheetLoadHandler() {
 function updateWeekliesGraph(lines) {
   var weeklies = [];
   var i = 0;
+  var month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
+  // for (i = 0; i < 52; i++) {
+    // weeklies.push(Math.random()*100);
+  // }
   weeklies = buildWeekliesFromLines(lines);
   // p(weeklies);
   $("#graphic div").remove();
   drawWeekliesGraph(weeklies);
+
+  //NOTE: this should DEFINITELY not be drawing every update!
+  drawMonthlyOverlay();
 
   //NOTE: this resembles PomParsley the most; might be basis for replacement
   function buildWeekliesFromLines(lines) {  
@@ -904,10 +912,10 @@ function updateWeekliesGraph(lines) {
   }
 
   function drawWeekliesGraph(data) {
+    p(data.length);
     var max = Math.max.apply(Math,data);
-    var width = 100/52;
-    $("#graphic").append("<div id=max>"+max+"</div>")
-    $("#graphic > #max").css({position: "absolute", backgroundColor: "Transparent",borderStyle:"none"});
+    //99.7 originally for 52-week correction, but evens out border so left it
+    var width = 99.7/52;
     d3.select("#graphic")
       .selectAll("div")
         .data(data)      
@@ -919,9 +927,43 @@ function updateWeekliesGraph(lines) {
         return d/max*100 + "%";
       })
       .style("left", function(d,i) {
-        return width*i + "%"
-      })
+        r(i);
+        return width*i + "%";
+      });
+      $("#graphic").append("<div id=max>"+max+"</div>")
+      $("#graphic > #max").css({position: "absolute", backgroundColor: "Transparent",borderStyle:"none",zIndex: 10});
   }
+  function drawMonthlyOverlay() {
+    //assumes the graph is cleared; kludgy
+    var i; 
+    var daysThroughYear = 0;
+    var last_precise_offset = 0;
+    for (i = 1; i <= 12; i++) {
+      daysThroughYear += daysInMonth(i);
+      simple_offset = 100/12*i;
+      precise_offset = daysThroughYear/365*100;
+      // p(daysInMonth(i),true);
+      // p(" Simple: " + simple_offset + ", Percise: " + precise_offset);
+      $("#graphic").append("<div class = 'month-line' id = 'month-"+i+"'></div>");
+      $("#month-"+i).css({left: (precise_offset) + "%" });
+      $("#graphic").append("<div class = 'month-label' id = 'label-"+i+"'>"+month[i-1]+"</div>");
+      $("#label-"+i).css({left: (last_precise_offset) + "% "});
+      last_precise_offset = precise_offset;
+      // p(precise_offset);
+      // $("#graphic > .month-label").css({left: (precise_offset) + "%"})
+    }
+    var yearPosition = dayNum(new Date)/365*100; //one day missing may be 
+    p(yearPosition);
+    $("#graphic").append("<div id = year-position></div");
+    $("#year-position").css({ left: yearPosition + "%" });
+  }
+}
+
+
+
+function daysInMonth(month) {
+  now = new Date;
+  return new Date(now.getFullYear(),month,0).getDate();
 }
 
 function dateFromString(string) { 
@@ -935,6 +977,12 @@ function weekNum(date) {
   return Math.floor((date-first)/1000/60/60/24/7+1);
   // return 5;
 }
+
+function dayNum(date) {
+  var first = new Date(date.getFullYear(),0,0);
+  return Math.floor((date-first)/(1000*60*60*24));
+}
+
 
 function weekNumFromLine(line) {
   return weekNum(dateFromString(line));
