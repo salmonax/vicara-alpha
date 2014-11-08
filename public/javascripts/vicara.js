@@ -912,7 +912,7 @@ function updateWeekliesGraph(lines) {
   }
 
   function drawWeekliesGraph(data) {
-    p(data.length);
+    // p(data.length);
     var max = Math.max.apply(Math,data);
     //99.7 originally for 52-week correction, but evens out border so left it
     var width = 99.7/52;
@@ -927,7 +927,7 @@ function updateWeekliesGraph(lines) {
         return d/max*100 + "%";
       })
       .style("left", function(d,i) {
-        r(i);
+        // r(i);
         return width*i + "%";
       });
       $("#graphic").append("<div id=max>"+max+"</div>")
@@ -952,10 +952,21 @@ function updateWeekliesGraph(lines) {
       // p(precise_offset);
       // $("#graphic > .month-label").css({left: (precise_offset) + "%"})
     }
-    var yearPosition = dayNum(new Date)/365*100; //one day missing may be 
-    p(yearPosition);
-    $("#graphic").append("<div id = year-position></div");
-    $("#year-position").css({ left: yearPosition + "%" });
+    var yearDayPosition = dayNum(new Date)/365*100; //one day missing may be 
+    // p(yearPosition);
+    yearWeekPosition = (weekNum(new Date)-1)/52*100;
+    p(yearWeekPosition);
+    p(yearDayPosition);
+    // p(weekNumFromLine('11/5/2014'));
+    $("#graphic").append("<div id = year-week-position></div");
+    $("#graphic").append("<div id = year-day-position></div>");
+    $("#year-day-position").css({
+      left: yearDayPosition + "%"
+    });
+    $("#year-week-position").css({ 
+      left: yearWeekPosition + "%",
+      width: 100/52+"%"
+    });
   }
 }
 

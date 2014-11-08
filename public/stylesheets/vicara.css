@@ -594,10 +594,18 @@ body {
   opacity: 0.3;
 }
 
-#year-position { 
-  background-color: red !important;
-  opacity: 0.5;
+#year-week-position { 
+  /*background-color: red !important;*/
+  background: rgb(120,120,200) !important;
+  opacity: 0.3;
 }
+#year-day-position {
+  width: 1px;
+  border-style: none !important; 
+  background: red !important;
+  opacity: 0.4;
+}
+
 
 .month-label { 
   /*These importants are necessary due to D3's selections; fix*/
