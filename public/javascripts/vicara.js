@@ -901,13 +901,16 @@ function updateWeekliesGraph(lines) {
     for (i = 0; i < lines.length; i++) {
       line = lines[i];
       if (isDate(line)) {
-        week = weekNumFromLine(line);
+        week = weekNumFromLine(line)-1;
  
       } else if (isTask(line)) {
         // p(week + " " + countPoms(line));
         weekTotals[week] += countPoms(line);
       }
     }
+    // r(weekTotals);
+    // p(weekNumFromLine('12/30/2014'));
+    // p(weekTotals.length);
     return weekTotals;
   }
 
@@ -927,7 +930,6 @@ function updateWeekliesGraph(lines) {
         return d/max*100 + "%";
       })
       .style("left", function(d,i) {
-        // r(i);
         return width*i + "%";
       });
       $("#graphic").append("<div id=max>"+max+"</div>")
@@ -952,17 +954,21 @@ function updateWeekliesGraph(lines) {
       // p(precise_offset);
       // $("#graphic > .month-label").css({left: (precise_offset) + "%"})
     }
-    var yearDayPosition = dayNum(new Date)/365*100; //one day missing may be 
+    var yearDayPosition = dayNum(new Date)/365*100; 
     // p(yearPosition);
     yearWeekPosition = (weekNum(new Date)-1)/52*100;
-    p(yearWeekPosition);
-    p(yearDayPosition);
+
+    // yearDayPosition = dayNum(dateFromString('11/8/2014'))/365*100;
+    // yearWeekPosition = 43/51.7*100;
+    // p(yearDayPosition);
+    // p(yearWeekPosition);
     // p(weekNumFromLine('11/5/2014'));
     $("#graphic").append("<div id = year-week-position></div");
     $("#graphic").append("<div id = year-day-position></div>");
     $("#year-day-position").css({
       left: yearDayPosition + "%"
     });
+    // p(yeardayPosition);
     $("#year-week-position").css({ 
       left: yearWeekPosition + "%",
       width: 100/52+"%"
@@ -981,6 +987,8 @@ function dateFromString(string) {
   var parts = string.split('/');
   return new Date(parts[2],parts[0]-1,parts[1]);
 }
+
+//weekNums are represented as 1-52 (52 being a partial week)
 function weekNum(date) {
   // p(typeof date);
   // var date = new Date();
