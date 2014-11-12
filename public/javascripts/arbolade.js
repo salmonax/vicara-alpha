@@ -32,7 +32,7 @@ function rectangle(x,y,w,h,color,border,text,name) {
 
 function buildNamesAndValues(data,top) {
   // build object of structure { values: [], names: [] } D3-style treemap data
-  // one zoom-level of hierarchy, so might be renamed buildLayer or something
+  // this produces one zoom-level of hierarchy, so might be renamed buildLayer or something
   if (top) {
     var top_object = {};
     top_object.values = [];
@@ -163,15 +163,25 @@ $.getJSON('/data/arbolade', function(data){
   initArbolade();
 
   $("#arbolade-grip").on("touch click",jumpToTopAndReload);
+  
+
+  $("#arbolade").on("touch click","div",jumpToChildAndReload);
+
+  function initArbolade() { 
+    var protoCells = buildSortedCells(data);
+    $("#arbolade-grip").data({ top: data, layer: 0 });
+    $("#arbolade-grip").text(data.name);
+    arbolade(protoCells);
+  }
+  
   function jumpToTopAndReload() {
     var topData = $("#arbolade-grip").data("top");
     var parentProtoCells = buildSortedCells(topData);
     $("#arbolade > div").remove();
+    $("#arbolade-grip").text("All");
     arbolade(parentProtoCells);
   }
 
-
-  $("#arbolade").on("touch click","div",jumpToChildAndReload);
   function jumpToChildAndReload() { 
     var clicked = $(this).data("name");
     // r(clicked);
@@ -196,13 +206,6 @@ $.getJSON('/data/arbolade', function(data){
     } else {
       p("No children!!!!!");
     }
-  }
-
-  function initArbolade() { 
-    var protoCells = buildSortedCells(data);
-    $("#arbolade-grip").data({ top: data, layer: 0 });
-    $("#arbolade-grip").text(data.name);
-    arbolade(protoCells);
   }
 
 });

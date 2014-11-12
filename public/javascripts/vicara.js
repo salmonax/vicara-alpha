@@ -884,6 +884,20 @@ function updateWeekliesGraph(lines) {
 
   //NOTE: this resembles PomParsley the most; might be basis for replacement
   function buildWeekliesFromLines(lines) {  
+    var line, week;
+    var weekTotals = [];
+    for (i = 0; i < 52; i++) { weekTotals.push(0); }
+    for (i = 0; i < lines.length; i++) {
+      line = lines[i];
+      if (isDate(line)) {
+        week = weekNumFromLine(line)-1;
+ 
+      } else if (isTask(line)) {
+        weekTotals[week] += countPoms(line);
+      }
+    }
+    return weekTotals;
+
     function isDate(line) {
       return /[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{1,4}\w*$/.test(line);
     }
@@ -895,28 +909,12 @@ function updateWeekliesGraph(lines) {
       //This can probably be much shorter.
       return line.match(/((\[|\()?X(\]|\))?)+$/)[0].replace(/(\[|\]|\(|\))/g,"").length
     }
-    var line, week;
-    var weekTotals = [];
-    for (i = 0; i < 52; i++) { weekTotals.push(0); }
-    for (i = 0; i < lines.length; i++) {
-      line = lines[i];
-      if (isDate(line)) {
-        week = weekNumFromLine(line)-1;
- 
-      } else if (isTask(line)) {
-        // p(week + " " + countPoms(line));
-        weekTotals[week] += countPoms(line);
-      }
-    }
-    // r(weekTotals);
-    // p(weekNumFromLine('12/30/2014'));
-    // p(weekTotals.length);
-    return weekTotals;
   }
 
   function drawWeekliesGraph(data) {
     // p(data.length);
     var max = Math.max.apply(Math,data);
+
     //99.7 originally for 52-week correction, but evens out border so left it
     var width = 99.7/52;
     d3.select("#graphic")
@@ -935,48 +933,49 @@ function updateWeekliesGraph(lines) {
       $("#graphic").append("<div id=max>"+max+"</div>")
       $("#graphic > #max").css({position: "absolute", backgroundColor: "Transparent",borderStyle:"none",zIndex: 10});
   }
+
   function drawMonthlyOverlay() {
-    //assumes the graph is cleared; kludgy
+    // alert("This shouldn't be obtrusive!");
+    // assumes the graph is cleared; kludgy
     var i; 
     var daysThroughYear = 0;
     var last_precise_offset = 0;
-    for (i = 1; i <= 12; i++) {
-      daysThroughYear += daysInMonth(i);
-      simple_offset = 100/12*i;
-      precise_offset = daysThroughYear/365*100;
-      // p(daysInMonth(i),true);
-      // p(" Simple: " + simple_offset + ", Percise: " + precise_offset);
-      $("#graphic").append("<div class = 'month-line' id = 'month-"+i+"'></div>");
-      $("#month-"+i).css({left: (precise_offset) + "%" });
-      $("#graphic").append("<div class = 'month-label' id = 'label-"+i+"'>"+month[i-1]+"</div>");
-      $("#label-"+i).css({left: (last_precise_offset) + "% "});
-      last_precise_offset = precise_offset;
-      // p(precise_offset);
-      // $("#graphic > .month-label").css({left: (precise_offset) + "%"})
-    }
-    var yearDayPosition = dayNum(new Date)/365*100; 
-    // p(yearPosition);
-    yearWeekPosition = (weekNum(new Date)-1)/52*100;
 
-    // yearDayPosition = dayNum(dateFromString('11/8/2014'))/365*100;
-    // yearWeekPosition = 43/51.7*100;
-    // p(yearDayPosition);
-    // p(yearWeekPosition);
-    // p(weekNumFromLine('11/5/2014'));
-    $("#graphic").append("<div id = year-week-position></div");
-    $("#graphic").append("<div id = year-day-position></div>");
-    $("#year-day-position").css({
-      left: yearDayPosition + "%"
-    });
-    // p(yeardayPosition);
-    $("#year-week-position").css({ 
-      left: yearWeekPosition + "%",
-      width: 100/52+"%"
-    });
+    drawMonthLinesAndLabels(); 
+
+    // drawCurrentWeekPosition();
+    drawCurrentDayPosition();
+
+    function drawMonthLinesAndLabels() {
+      for (i = 1; i <= 12; i++) {
+        daysThroughYear += daysInMonth(i);
+        simple_offset = 100/12*i;
+        precise_offset = daysThroughYear/365*100;
+        $("#graphic").append("<div class = 'month-line' id = 'month-"+i+"'></div>");
+        $("#month-"+i).css({left: (precise_offset) + "%" });
+        $("#graphic").append("<div class = 'month-label' id = 'label-"+i+"'>"+month[i-1]+"</div>");
+        $("#label-"+i).css({left: (last_precise_offset) + "% "});
+        last_precise_offset = precise_offset;
+      }
+    }
+    function drawCurrentWeekPosition() {
+      var yearWeekPosition = (weekNum(new Date)-1)/52*100;
+      $("#graphic").append("<div id = year-week-position></div>");
+      $("#year-week-position").css({ 
+        left: yearWeekPosition + "%",
+        width: 100/52+"%"
+      });
+    }
+    function drawCurrentDayPosition() {
+      var yearDayPosition = dayNum(new Date)/365*100; 
+      // p(yearPosition);
+      $("#graphic").append("<div id = year-day-position></div>");
+      $("#year-day-position").css({
+        left: yearDayPosition + "%"
+      });
+    }
   }
 }
-
-
 
 function daysInMonth(month) {
   now = new Date;
