@@ -886,7 +886,7 @@ var $pomsheetLines = "";
 
 function setPomsheetArray() { 
   //WARNING: assumes pomsheet is in reverse alphabetical! This should be a sort!
-  $pomsheetLines = $("#pomsheet-area").val().split(/\n/).reverse();
+  $pomsheetLines = $("#pomsheet-area").val().split(/\n/);
 }
 function pomsheetLoadHandler() {
   updateMinimap();
@@ -938,6 +938,10 @@ function updateWeekliesGraph(lines) {
   function buildParsleyData(lines) {  
     var line, week;
     var parsleyData = {};
+
+    //WARNING: this should be a SORT!!
+    // it presumes dates are in reverse order!
+    // lines = lines.reverse(); 
 
     parsleyData.weeklies = buildWeekTotals();
     parsleyData.horizontals = buildLineData();
