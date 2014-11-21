@@ -12,7 +12,9 @@
  *  Key Events, Grepper
  *  Stats and Graph
  *  User-agent Specific Triggers
- *  Textarea, Minimap, Grepped Weeklies 
+ *  Minimap
+ *  Pomsheet Loaders and Handlers
+ *  Grepped Weeklies 
  */ 
 
 //BEGIN Interval Updates and Time Helpers
@@ -805,8 +807,7 @@ function updateGraph(data) {
 if (navigator.userAgent.match(/iPad/i)) { toggleConsole();}
 //END User Agent-specific triggers
 
-
-//BEGIN Textarea, Minimap, Grepped Weeklies
+//BEGIN Minimap
 Draggable.create("#minimap-scroller-container", {
   type:"x,y", 
   edgeResistance:1, 
@@ -848,16 +849,44 @@ function dragMiniMap() {
   pomsheet.scrollTop = desiredPomsheetTop;
   minimap.scrollTop = desiredMinimapTop;
 }
+$("#pomsheet-area").data("isMiniDragging",false);
+$("#pomsheet-area").data("miniNubY", 0.0);
 
-$("#pomsheet-area").load("/stuff",pomsheetLoadHandler);
+$("#pomsheet-area").on("scroll",function() { 
+  if ($(this).data("isMiniDragging") == false) {
+    var minimap = $("#minimap-area")[0];
+    var nubLowest = (parseInt($("#minimap-container").css("height"))-108);
+    var minimapHeight = minimap.scrollHeight;
+    var pomsheetPercent = this.scrollTop/this.scrollHeight;
 
-//NOTE: $pomsheetLines is solid candidate for shell var
-var $pomsheetLines = "";
+
+    r(pomsheetPercent);
+    p($(this).data("miniNubY"));
+    p(nubLowest);
+    var nubY = $(this).data("miniNubY");
+    var nubPosition = nubLowest*pomsheetPercent
+    TweenMax.set("#minimap-scroller-container",{ transform: "translateY("+nubPosition+"px)"});
+
+    var desiredMinimapTop = minimapHeight*pomsheetPercent;
+    minimap.scrollTop = desiredMinimapTop;
+
+  }
+});
+
 function updateMinimap() {
   $("#minimap-area").val($("#pomsheet-area").val());
 }
+//END Minimap
+
+//BEGIN Pomsheet Loaders and Handlers
+
+$("#pomsheet-area").load("/stuff",pomsheetLoadHandler);
+
+var $pomsheetLines = "";
+
 function setPomsheetArray() { 
-  $pomsheetLines = $("#pomsheet-area").val().split(/\n/);
+  //WARNING: assumes pomsheet is in reverse alphabetical! This should be a sort!
+  $pomsheetLines = $("#pomsheet-area").val().split(/\n/).reverse();
 }
 function pomsheetLoadHandler() {
   updateMinimap();
@@ -865,38 +894,107 @@ function pomsheetLoadHandler() {
   setPomsheetArray();
   updateWeekliesGraph($pomsheetLines);
 }
+//END Textarea Loaders
 
+//BEGIN Grepped Weeklies
 function updateWeekliesGraph(lines) {
-  var weeklies = [];
+  var parsleyData = [];
   var i = 0;
   var month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
   // for (i = 0; i < 52; i++) {
-    // weeklies.push(Math.random()*100);
+    // parsleyData.push(Math.random()*100);
   // }
-  weeklies = buildWeekliesFromLines(lines);
-  // p(weeklies);
+  parsleyData = buildParsleyData(lines); // !!! HOLY CRAP Parsley's BACK!"
+  // p(parsleyData);
   $("#graphic div").remove();
-  drawWeekliesGraph(weeklies);
+  drawWeekliesGraph(parsleyData.weeklies);
+  drawHorizontalOverlays(parsleyData.horizontals);
 
+  // drawPPD(parsleyData.weeklies);
   //NOTE: this should DEFINITELY not be drawing every update!
-  drawMonthlyOverlay();
+  drawMonthsOverlay();
 
-  //NOTE: this resembles PomParsley the most; might be basis for replacement
-  function buildWeekliesFromLines(lines) {  
+  function drawPPD(data) {
+    var i, week,
+      max = Math.max.apply(Math,data);
+
+      
+      
+
+    // r(max/7);
+    for (i = 0; i < data.length; i++) {
+      $("#graphic").append("<div class = ppd-line id = ppd-"+i+"></div>");
+      $("#ppd-"+i).css({ bottom: (i*10) + "%" })
+    }
+    $(".ppd-line").css({
+      position: "absolute", 
+      backgroundColor: "orange",
+      height: "1px",
+      width: "100px"
+    });
+  }
+
+  //!!!! NOTE: this resembles PomParsley the most; might be basis for replacement
+  function buildParsleyData(lines) {  
     var line, week;
-    var weekTotals = [];
-    for (i = 0; i < 52; i++) { weekTotals.push(0); }
-    for (i = 0; i < lines.length; i++) {
-      line = lines[i];
-      if (isDate(line)) {
-        week = weekNumFromLine(line)-1;
- 
-      } else if (isTask(line)) {
-        weekTotals[week] += countPoms(line);
+    var parsleyData = {};
+
+    parsleyData.weeklies = buildWeekTotals();
+    parsleyData.horizontals = buildLineData();
+
+    return parsleyData;
+
+    function buildLineData() {
+      for (i = 0; i < lines.length; i++) {
+        line = lines[i];
+
+        //!!!! Building the horizontal stuff
       }
     }
-    return weekTotals;
+
+    function buildWeekTotals() { 
+      var weekTotals = [];
+      var yearTotal = 0;
+      var pomCounter = 0;
+      var currentDate;
+      var milestone_dates = [];
+      var milestone_hours = [0,5,20,50,100,250,1000];
+      for (i = 0; i < 52; i++) { weekTotals.push(0); }
+      for (i = 0; i < lines.length; i++) {
+        line = lines[i];
+        if (isDate(line)) {
+          pushMilestoneDate((yearTotal/2),currentDate);
+          currentDate = line;
+          week = weekNumFromLine(line)-1;
+        } else if (isTask(line)) {
+          pomCounter = countPoms(line);
+          weekTotals[week] += pomCounter;
+          yearTotal += pomCounter;
+        }
+      }
+      // r(weekTotals);
+      // p("");
+      r((yearTotal/2) + " hours");
+      p(milestone_dates);
+      p(milestone_hours);
+      return weekTotals;
+
+      function pushMilestoneDate(count,date) {
+        if (!date || !count) { return; }
+        // alert("hello!");
+        var i;
+        // p(date);
+        for (i = 0; i < milestone_hours.length; i++ ) { 
+          // p(count, true); p()
+          if (count >= milestone_hours[i] && 
+             (count < milestone_hours[i+1] || (i+1) == milestone_hours.length) && 
+             (milestone_dates.length == i)) {
+            // p("DATE: " + date); 
+            milestone_dates[i] = date;
+          }
+        }
+      }
+    }
 
     function isDate(line) {
       return /[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{1,4}\w*$/.test(line);
@@ -905,9 +1003,13 @@ function updateWeekliesGraph(lines) {
     function isTask(line) {
       return /^([0-9]|[01][0-9]|2[0-4])(\.[0,5]|[\s,\t]).*[\s,\t]((?:\[|\()?X(\]|\))?)+$/.test(line);
     }
+
     function countPoms(line) {
       //This can probably be much shorter.
       return line.match(/((\[|\()?X(\]|\))?)+$/)[0].replace(/(\[|\]|\(|\))/g,"").length
+    }
+    function weekNumFromLine(line) {
+      return weekNum(dateFromString(line));
     }
   }
 
@@ -934,9 +1036,40 @@ function updateWeekliesGraph(lines) {
       $("#graphic > #max").css({position: "absolute", backgroundColor: "Transparent",borderStyle:"none",zIndex: 10});
   }
 
-  function drawMonthlyOverlay() {
+  function drawHorizontalOverlays() {
+    
+    drawTotals();
+    drawLine("#whatever","100 hours","rgb(200,100,200)",{x: 10, y: 60, w: 40});
+
+
+    function drawTotals() {
+      drawLine("#total","200 hours","rgb(100,200,200)",
+              {x: 50, y: 25, w: 30});
+    }
+
+    function drawLine(selector,label,color,coords) { 
+      $("#graphic").append("<div id="+selector.substring(1)+">"+label+"</div");
+      $("#graphic >" + selector).css({
+        position: "absolute",
+        left: coords.x + "%",
+        bottom: 100-coords.y + "%",
+        height: "auto",
+        backgroundColor: "Transparent",
+        borderStyle: "none",
+        borderColor: color,
+        borderBottomStyle: "solid",
+        color: color,
+        width: coords.w + "%",
+        zIndex: 2
+      });
+    }
+
+  }
+
+
+  function drawMonthsOverlay() {
     // alert("This shouldn't be obtrusive!");
-    // assumes the graph is cleared; kludgy
+    // assumes the graph is cleared, which it shouldn't need to be; kludgy
     var i; 
     var daysThroughYear = 0;
     var last_precise_offset = 0;
@@ -954,7 +1087,10 @@ function updateWeekliesGraph(lines) {
         $("#graphic").append("<div class = 'month-line' id = 'month-"+i+"'></div>");
         $("#month-"+i).css({left: (precise_offset) + "%" });
         $("#graphic").append("<div class = 'month-label' id = 'label-"+i+"'>"+month[i-1]+"</div>");
-        $("#label-"+i).css({left: (last_precise_offset) + "% "});
+        $("#label-"+i).css({
+          left: (last_precise_offset) + "% ",
+          borderStyle: "none"
+        });
         last_precise_offset = precise_offset;
       }
     }
@@ -1001,37 +1137,7 @@ function dayNum(date) {
   return Math.floor((date-first)/(1000*60*60*24));
 }
 
-
-function weekNumFromLine(line) {
-  return weekNum(dateFromString(line));
-}
-
-
-$("#pomsheet-area").data("isMiniDragging",false);
-$("#pomsheet-area").data("miniNubY", 0.0);
-
-$("#pomsheet-area").on("scroll",function() { 
-  if ($(this).data("isMiniDragging") == false) {
-    var minimap = $("#minimap-area")[0];
-    var nubLowest = (parseInt($("#minimap-container").css("height"))-108);
-    var minimapHeight = minimap.scrollHeight;
-    var pomsheetPercent = this.scrollTop/this.scrollHeight;
-
-
-    r(pomsheetPercent);
-    p($(this).data("miniNubY"));
-    p(nubLowest);
-    var nubY = $(this).data("miniNubY");
-    var nubPosition = nubLowest*pomsheetPercent
-    TweenMax.set("#minimap-scroller-container",{ transform: "translateY("+nubPosition+"px)"});
-
-    var desiredMinimapTop = minimapHeight*pomsheetPercent;
-    minimap.scrollTop = desiredMinimapTop;
-
-  }
-});
-//END Textarea, Minimap, Grepped Weeklies
-
+//END Grepped Weeklies
 
 
 setLeftRight();
