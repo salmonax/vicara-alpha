@@ -805,6 +805,7 @@ function updateGraph(data) {
 
 //BEGIN User Agent-specific triggers
 if (navigator.userAgent.match(/iPad/i)) { toggleConsole();}
+
 //END User Agent-specific triggers
 
 //BEGIN Minimap
@@ -1142,7 +1143,6 @@ function dayNum(date) {
 }
 
 //END Grepped Weeklies
-
 
 setLeftRight();
 // setInterval(function() {

@@ -1,30 +1,4 @@
 #android.gradient
-  #left-half
-    #top-half.container
-      #chart-container
-        #weekly-chart
-      #time-marker
-      #twenty-four
-      .container
-        #pom-left
-        #pom-right
-        #poms.shadow
-        #poms-done
-        #poms-not-done
-      /#stats
-      /#button-start START
-      / .meter.draggable
-      /  #first
-      /  #second
-      /  #third
-    / #blah.slider
-    /  .peg
-    / #bottom-half
-    #connection
-    #bottom-half
-      #arbolade-container
-        #arbolade-grip
-        #arbolade
   #right-half
     #pomsheet-area-container
       %textarea#pomsheet-area{readonly: false, spellcheck: 'false', }
@@ -32,44 +6,18 @@
       %textarea#minimap-area{readonly: true, spellcheck: 'false'}
     #minimap-scroller-container
       #minimap-scroller-nub
-    #pomsheet-options
-      #pomsheet-bar
-        ="--------------------<br>"
-      #pomsheet-grep-label GREP:
-      %input#pomsheet-grep-input{type: "text"}
-      #pomsheet-poms Notes
-      #pomsheet-words Pomsheet
+  #pomsheet-options
+    #pomsheet-bar
+      ="--------------------<br>"
+    #pomsheet-grep-label GREP:
+    %input#pomsheet-grep-input{type: "text"}
+    #pomsheet-poms Notes
+    #pomsheet-words Pomsheet
     / #pomsheet-area{contenteditable: true, spellcheck: 'false'}
 :css
-  #pomsheet-grep-label { 
-    / background: green;
-    padding: 1px;
-    float: left;
-    overflow: hidden;
-    text-align: left;
+  #right-half { 
+    left: 0px;
+    width: 100%;
+    display: none;
   }
-  / #pomsheet-poms { background: red; }
-  / #pomsheet-words { background: blue; }
-  #pomsheet-grep-input {
-    color: white;
-    margin-left: 5px;
-    background: rgb(15,15,15);
-    position: relative;
-    float: left;
-    width: 40%;
-    border-radius: 0px;
-    border-style: none;
-    padding: 2px;
-    padding-left: 5px;
-    z-index: 20;
-  }
-  #poms-done {
-    float: left;
-    margin-left: 20px;
-    margin-bottom: 5px;
-  }
-  #poms-not-done {
-    float: right;
-    margin-right: 20px;
-    margin-bottom: 5px;
-  }
+  

@@ -63,9 +63,15 @@ before do
   end
 end
 
-get "/", :agent => /iPad/i do
+get "/", agent: /iPad/i do
   haml :ipad
 end
+
+get "/", agent: /Android/i do
+  haml :android
+end
+
+
 get "/ipad" do
   haml :ipad
 end
@@ -77,7 +83,7 @@ get "/" do
   # pomsheet
 
   authed? if request.host != "192.168.42.250" and request.host != "localhost" and request.host != "192.168.43.72" and request.host != "54.68.163.121"
-  haml :android
+  haml :desktop
 
   # request.host
   # haml :root

@@ -619,3 +619,38 @@ body {
   z-index: 20;
   opacity: 0.7;
 }
+
+/*Following were in desktop.haml for some reason*/
+
+#pomsheet-grep-label { 
+  /*background: green;*/
+  padding: 1px;
+  float: left;
+  overflow: hidden;
+  text-align: left;
+}
+/*#pomsheet-poms { background: red; }*/
+/*#pomsheet-words { background: blue; }*/
+#pomsheet-grep-input {
+  color: white;
+  margin-left: 5px;
+  background: rgb(15,15,15);
+  position: relative;
+  float: left;
+  width: 40%;
+  border-radius: 0px;
+  border-style: none;
+  padding: 2px;
+  padding-left: 5px;
+  z-index: 20;
+}
+#poms-done {
+  float: left;
+  margin-left: 20px;
+  margin-bottom: 5px;
+}
+#poms-not-done {
+  float: right;
+  margin-right: 20px;
+  margin-bottom: 5px;
+}
