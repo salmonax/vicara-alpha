@@ -304,6 +304,7 @@ __END__
     #screen
       =yield
   %script{src:"/javascripts/vicara.js"}
+  %script{src:"/javascripts/grepGraph.js"}
   %script{src:"/javascripts/arbolade.js"}
   %script{src:"/javascripts/ritmus.js"}
 @@ root

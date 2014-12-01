@@ -14,7 +14,10 @@
  *  User-agent Specific Triggers
  *  Minimap
  *  Pomsheet Loaders and Handlers
- *  Grepped Weeklies 
+ *
+ *  Grepped Weeklies -> grepGraph.js
+ *  Arbolade -> arbolade.js
+ *  Ritmus, a parsley timer -> ritmus.js
  */ 
 
 //BEGIN Interval Updates and Time Helpers
@@ -897,227 +900,7 @@ function pomsheetLoadHandler() {
 }
 //END Textarea Loaders
 
-//BEGIN Grepped Weeklies
-function updateWeekliesGraph(lines) {
-  var parsleyData = [];
-  var i = 0;
-  var month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  // for (i = 0; i < 52; i++) {
-    // parsleyData.push(Math.random()*100);
-  // }
-  parsleyData = buildParsleyData(lines); // !!! HOLY CRAP Parsley's BACK!"
-  // p(parsleyData);
-  $("#graphic div").remove();
-  drawWeekliesGraph(parsleyData.weeklies);
-  drawHorizontalOverlays(parsleyData.horizontals);
-
-  // drawPPD(parsleyData.weeklies);
-  //NOTE: this should DEFINITELY not be drawing every update!
-  drawMonthsOverlay();
-
-  function drawPPD(data) {
-    var i, week,
-      max = Math.max.apply(Math,data);
-
-      
-      
-
-    // r(max/7);
-    for (i = 0; i < data.length; i++) {
-      $("#graphic").append("<div class = ppd-line id = ppd-"+i+"></div>");
-      $("#ppd-"+i).css({ bottom: (i*10) + "%" })
-    }
-    $(".ppd-line").css({
-      position: "absolute", 
-      backgroundColor: "orange",
-      height: "1px",
-      width: "100px"
-    });
-  }
-
-  //!!!! NOTE: this resembles PomParsley the most; might be basis for replacement
-  function buildParsleyData(lines) {  
-    var line, week;
-    var parsleyData = {};
-
-    //WARNING: this should be a SORT!!
-    // it presumes dates are in reverse order!
-    // lines = lines.reverse(); 
-
-    parsleyData.weeklies = buildWeekTotals();
-    parsleyData.horizontals = buildLineData();
-
-    return parsleyData;
-
-    function buildLineData() {
-      for (i = 0; i < lines.length; i++) {
-        line = lines[i];
-
-        //!!!! Building the horizontal stuff
-      }
-    }
-
-    function buildWeekTotals() { 
-      var weekTotals = [];
-      var yearTotal = 0;
-      var pomCounter = 0;
-      var currentDate;
-      var milestone_dates = [];
-      var milestone_hours = [0,5,20,50,100,250,1000];
-      for (i = 0; i < 52; i++) { weekTotals.push(0); }
-      for (i = 0; i < lines.length; i++) {
-        line = lines[i];
-        if (isDate(line)) {
-          pushMilestoneDate((yearTotal/2),currentDate);
-          currentDate = line;
-          week = weekNumFromLine(line)-1;
-        } else if (isTask(line)) {
-          pomCounter = countPoms(line);
-          weekTotals[week] += pomCounter;
-          yearTotal += pomCounter;
-        }
-      }
-      // r(weekTotals);
-      // p("");
-      r((yearTotal/2) + " hours");
-      p(milestone_dates);
-      p(milestone_hours);
-      return weekTotals;
-
-      function pushMilestoneDate(count,date) {
-        if (!date || !count) { return; }
-        // alert("hello!");
-        var i;
-        // p(date);
-        for (i = 0; i < milestone_hours.length; i++ ) { 
-          // p(count, true); p()
-          if (count >= milestone_hours[i] && 
-             (count < milestone_hours[i+1] || (i+1) == milestone_hours.length) && 
-             (milestone_dates.length == i)) {
-            // p("DATE: " + date); 
-            milestone_dates[i] = date;
-          }
-        }
-      }
-    }
-
-    function isDate(line) {
-      return /[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{1,4}\w*$/.test(line);
-    }
-
-    function isTask(line) {
-      return /^([0-9]|[01][0-9]|2[0-4])(\.[0,5]|[\s,\t]).*[\s,\t]((?:\[|\()?X(\]|\))?)+$/.test(line);
-    }
-
-    function countPoms(line) {
-      //This can probably be much shorter.
-      return line.match(/((\[|\()?X(\]|\))?)+$/)[0].replace(/(\[|\]|\(|\))/g,"").length
-    }
-    function weekNumFromLine(line) {
-      return weekNum(dateFromString(line));
-    }
-  }
-
-  function drawWeekliesGraph(data) {
-    // p(data.length);
-    var max = Math.max.apply(Math,data);
-
-    //99.7 originally for 52-week correction, but evens out border so left it
-    var width = 99.7/52;
-    d3.select("#graphic")
-      .selectAll("div")
-        .data(data)      
-      .enter().append("div")
-      .style("width", function(d) { 
-        return width + "%";
-      })
-      .style("height", function(d) { 
-        return d/max*100 + "%";
-      })
-      .style("left", function(d,i) {
-        return width*i + "%";
-      });
-      $("#graphic").append("<div id=max>"+max+"</div>")
-      $("#graphic > #max").css({position: "absolute", backgroundColor: "Transparent",borderStyle:"none",zIndex: 10});
-  }
-
-  function drawHorizontalOverlays() {
-    
-    drawTotals();
-    drawLine("#whatever","100 hours","rgb(200,100,200)",{x: 10, y: 60, w: 40});
-
-
-    function drawTotals() {
-      drawLine("#total","200 hours","rgb(100,200,200)",
-              {x: 50, y: 25, w: 30});
-    }
-
-    function drawLine(selector,label,color,coords) { 
-      $("#graphic").append("<div id="+selector.substring(1)+">"+label+"</div");
-      $("#graphic >" + selector).css({
-        position: "absolute",
-        left: coords.x + "%",
-        bottom: 100-coords.y + "%",
-        height: "auto",
-        backgroundColor: "Transparent",
-        borderStyle: "none",
-        borderColor: color,
-        borderBottomStyle: "solid",
-        color: color,
-        width: coords.w + "%",
-        zIndex: 2
-      });
-    }
-
-  }
-
-
-  function drawMonthsOverlay() {
-    // alert("This shouldn't be obtrusive!");
-    // assumes the graph is cleared, which it shouldn't need to be; kludgy
-    var i; 
-    var daysThroughYear = 0;
-    var last_precise_offset = 0;
-
-    drawMonthLinesAndLabels(); 
-
-    // drawCurrentWeekPosition();
-    drawCurrentDayPosition();
-
-    function drawMonthLinesAndLabels() {
-      for (i = 1; i <= 12; i++) {
-        daysThroughYear += daysInMonth(i);
-        simple_offset = 100/12*i;
-        precise_offset = daysThroughYear/365*100;
-        $("#graphic").append("<div class = 'month-line' id = 'month-"+i+"'></div>");
-        $("#month-"+i).css({left: (precise_offset) + "%" });
-        $("#graphic").append("<div class = 'month-label' id = 'label-"+i+"'>"+month[i-1]+"</div>");
-        $("#label-"+i).css({
-          left: (last_precise_offset) + "% ",
-          borderStyle: "none"
-        });
-        last_precise_offset = precise_offset;
-      }
-    }
-    function drawCurrentWeekPosition() {
-      var yearWeekPosition = (weekNum(new Date)-1)/52*100;
-      $("#graphic").append("<div id = year-week-position></div>");
-      $("#year-week-position").css({ 
-        left: yearWeekPosition + "%",
-        width: 100/52+"%"
-      });
-    }
-    function drawCurrentDayPosition() {
-      var yearDayPosition = dayNum(new Date)/365*100; 
-      // p(yearPosition);
-      $("#graphic").append("<div id = year-day-position></div>");
-      $("#year-day-position").css({
-        left: yearDayPosition + "%"
-      });
-    }
-  }
-}
-
+//BEGIN Date Helpers
 function daysInMonth(month) {
   now = new Date;
   return new Date(now.getFullYear(),month,0).getDate();
@@ -1141,8 +924,7 @@ function dayNum(date) {
   var first = new Date(date.getFullYear(),0,0);
   return Math.floor((date-first)/(1000*60*60*24));
 }
-
-//END Grepped Weeklies
+//END Date Helpers
 
 setLeftRight();
 // setInterval(function() {

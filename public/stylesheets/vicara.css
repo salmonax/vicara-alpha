@@ -590,7 +590,7 @@ body {
   width: 1px;
   border-style: none !important;
   /*Um, in hurry... probably some jQuery making this necessary*/
-  background-color: rgb(100,100,200) !important;
+  /*background-color: rgb(100,100,200) !important;*/
   opacity: 0.3;
 }
 
