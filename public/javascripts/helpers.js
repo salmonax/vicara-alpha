@@ -1,3 +1,7 @@
+//Print Helpers
+//Color Helpers
+//Prototype Helpers
+
 //BEGIN Print Helpers
 function r(whatever,noBreak) {
   $("#output").text("");
@@ -61,3 +65,10 @@ function stringRGB(colorObj,offset) {
   return "rgb(" + (colorObj.r+offset) + "," + (colorObj.g+offset) + "," + (colorObj.b+offset) + ")";
 }
 //END Color Helpers
+
+//BEGIN Prototype Helpers
+
+Array.prototype.includes = function(element) { 
+  return this.indexOf(element) > -1;
+}
+//END Prototype Helpers

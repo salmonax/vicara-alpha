@@ -22,6 +22,14 @@
 
 //BEGIN Interval Updates and Time Helpers
 var lastUpdateTime = new Date();
+var $MONTHS = ["January", "February","March","April","May","June","July","August","September","October","November","December"];
+function getMonthName(number) {
+  return $MONTHS[number-1];
+}
+function getMonthNum(name) { 
+  return $MONTHS.indexOf(name)+1;
+}
+
 function updateInfo() {
   requestAnimationFrame(updateInfo);
   var currentUpdateTime = new Date();

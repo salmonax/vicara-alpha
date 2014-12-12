@@ -18,11 +18,13 @@ function updateWeekliesGraph(lines) {
   drawWeekliesGraph(parsleyData.weeklies);
   //NOTE: drawPPD needs to be before drawHorizontalOverlays,
   //because it currently initializes the PPD adjustmentFactor for percent draw
+  //Might want to fix this!
   drawPPD(parsleyData.weeklies);
   drawHorizontalOverlays(parsleyData.horizontals);
 
   //NOTE: this should DEFINITELY not be drawing every update!
   drawMonthsOverlay();
+  drawMonthlyTargets(parsleyData);
 
   function drawPPD(weeklies_array) {
     p("=== drawPPD() ===");
@@ -58,131 +60,25 @@ function updateWeekliesGraph(lines) {
     });
   }
 
-  //!!!! NOTE: this resembles PomParsley the most; might be basis for replacement
-  function buildParsleyData(lines) {  
-    var line, week;
-    var parsleyData = {};
-
-    //WARNING: this should be a SORT after the data structure is decided
-    // it presumes dates are in reverse order!
-    // lines = lines.reverse(); 
-
-    parsleyData = buildParsleyTotals();
-
-    return parsleyData;
-
-    function buildLineData() {
-      for (i = 0; i < lines.length; i++) {
-        line = lines[i];
-
-        //!!!! Building the horizontal stuff
-      }
-    }
-
-    function buildParsleyTotals() {
-      r("=== buildParsleyTotals() ===");
-      var currentDate;
-
-      var weekTotals = [],
-          yearTotal = 0,
-          pomCounter = 0,
-          milestone_dates = [],
-          milestone_hours = [0,20,40,80,160,360,720];
-
-      // milestone_hours = [0,10,100,1000];
-      milestone_hours = [0,25,50,100,250,500,1000];
-      milestone_hours = [0,20,40,100,200,300,400,500,600,700,800,900,1000];
-
-      
-      for (i = 0; i < 52; i++) { weekTotals.push(0); }
-
-      //WARNING: iterating backwards, but assigning
-      // date as though appearing first!
-      for (i = lines.length; i > 0; i--) {
-        line = lines[i];
-        if (isDate(line)) {
-          pushMilestoneDate((yearTotal/2),currentDate);
-          currentDate = line;
-          week = weekNumFromLine(line)-1;
-        } else if (isTask(line)) {
-          pomCounter = countPoms(line);
-          weekTotals[week] += pomCounter;
-          yearTotal += pomCounter;
-        }
-      }
-
-      // r(weekTotals);
-      // p("");
-      r((yearTotal/2) + " hours");
-      // p(milestone_dates);
-      // p(milestone_hours);
-      return { weeklies: weekTotals,
-               milestones: {
-                hours: milestone_hours,
-                dates: milestone_dates,
-                weekNums: datesToWeekNums(),
-                dayNums: datesToDayNums()
-               } 
-             };
-
-      function datesToWeekNums() {
-        // r("Take control!");
-        var weekNums = [];
-        var date;
-
-        for (i = 0; i < milestone_dates.length; i++) { 
-          date = milestone_dates[i];
-          weekNums[i] = weekNumFromLine(date);
-        }
-
-        return weekNums;
-      }
-
-      function datesToDayNums() { 
-        var dayNums = [];
-        var date;
-
-        for (i = 0; i < milestone_dates.length; i++) {
-          date = milestone_dates[i];
-          dayNums[i] = dayNumFromLine(date)
-        }
-
-        return dayNums;
-      }
-
-      function pushMilestoneDate(count,date) {
-        if (!date || !count) { return; }
-        
-        var i;
-
-        for (i = 0; i < milestone_hours.length; i++ ) { 
-          if (count >= milestone_hours[i] && 
-             (count < milestone_hours[i+1] || (i+1) == milestone_hours.length) && 
-             (milestone_dates.length == i)) {
-            milestone_dates[i] = date;
-          }
-        }
-      }
-      
-    }
-
-    function isDate(line) {
-      return /[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{1,4}\w*$/.test(line);
-    }
-
-    function isTask(line) {
-      return /^([0-9]|[01][0-9]|2[0-4])(\.[0,5]|[\s,\t]).*[\s,\t]((?:\[|\()?X(\]|\))?)+$/.test(line);
-    }
-
-    function countPoms(line) {
-      //This can probably be much shorter.
-      return line.match(/((\[|\()?X(\]|\))?)+$/)[0].replace(/(\[|\]|\(|\))/g,"").length
-    }
-    function weekNumFromLine(line) {
-      return weekNum(dateFromString(line));
-    }
-    function dayNumFromLine(line) { 
-      return dayNum(dateFromString(line));
+  function drawMonthlyTargets(parsleyData) { 
+    var i, max,
+        width = 100/12;
+    p("==drawMonthlyTargets()==");
+    targets = parsleyData.targets;
+    max = Math.max.apply(Math,parsleyData.weeklies)/7;
+    p("+!!!" + max);
+    // var max = Math.max.apply(Math,data);
+    for (i = 0; i < targets.length; i++) {
+      $("#graphic").append("<div id='monthly-target-"+i+"'></div>");
+      $("#monthly-target-"+i).css({
+        position: "absolute",
+        width: width + "%",
+        left: width*i + "%",
+        height: targets[i]/max*100 + "%",
+        background: "green",
+        zIndex: "11",
+        opacity: 0.2
+      });
     }
   }
 
@@ -245,7 +141,7 @@ function updateWeekliesGraph(lines) {
 
         hpd = Math.floor(hpd) + "h" + padTime(Math.floor((hpd-Math.floor(hpd))*60) + "m/day");
 
-        p("From Day " + lastDayNum + " to " + dayNum + "; " + hours + " hours, " + (daysElapsed) + " days, " + ppd + "ppd, " + hpd);
+        // p("From Day " + lastDayNum + " to " + dayNum + "; " + hours + " hours, " + (daysElapsed) + " days, " + ppd + "ppd, " + hpd);
 
         lastPercent = percentFromDay(lastDayNum);
         percent = percentFromDay(dayNum);
