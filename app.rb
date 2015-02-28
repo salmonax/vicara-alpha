@@ -308,6 +308,7 @@ __END__
   %script{src:"/javascripts/grepGraph.js"}
   %script{src:"/javascripts/arbolade.js"}
   %script{src:"/javascripts/ritmus.js"}
+
 @@ root
 :markdown
   Welcome to Sinatra Minimal, a simple starter kit!
