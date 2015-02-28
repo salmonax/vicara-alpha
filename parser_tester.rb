@@ -13,7 +13,7 @@ require './lib/meter'
 # poms_input = File.open(pom_sheet_path,"r")
 # pom_parser = PomParser.new(poms_input)
 
-raw_pomsheet = File.read("/home/salmonax/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
+raw_pomsheet = File.read("/home/salmonax/Dropbox/Apps/Vicara/2015 Pomodoro.txt")
 
 pom_parser = PomParser.new(raw_pomsheet,last:40)
 

@@ -41,11 +41,11 @@ def pomsheet
   if request.host != "192.168.43.72" and request.host != "localhost" and request.host != "192.168.42.250" and request.host != "54.68.163.121" and request.host != "192.168.1.2"
     authed?
     client = get_dropbox_client
-    @file = client.get_file("2014 Pomodoro.txt")
+    @file = client.get_file("2015 Pomodoro.txt")
   elsif request.host == "54.68.163.121" #hmm, should probably put this in gitignore
-    @file = File.read("/home/ubuntu/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
+    @file = File.read("/home/ubuntu/Dropbox/Apps/Vicara/2015 Pomodoro.txt")
   else
-    @file = File.read("/home/salmonax/Dropbox/Apps/Vicara/2014 Pomodoro.txt")
+    @file = File.read("/home/salmonax/Dropbox/Apps/Vicara/2015 Pomodoro.txt")
   end
   @file
 end
@@ -308,6 +308,7 @@ __END__
   %script{src:"/javascripts/grepGraph.js"}
   %script{src:"/javascripts/arbolade.js"}
   %script{src:"/javascripts/ritmus.js"}
+  %script{src:"/javascripts/turnip.js"}
 
 @@ root
 :markdown

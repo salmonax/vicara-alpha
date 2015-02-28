@@ -1,9 +1,7 @@
 /*
  *  Interval Updates and Time Helpers
- *  TwentyFourBar and Desiderata
  *  EventStream, for clock activation broadcasting
  *  Timer Clock
- *  Turnip, a max/average/minimum pacer
  *  Underchart, for translucent background charts on mobile 
  *  Buttons and Weeklies
  *  Vertical Meter Bars
@@ -15,6 +13,8 @@
  *  Minimap
  *  Pomsheet Loaders and Handlers
  *
+ *  TwentyFourBar and Desiderata -> turnip.js
+ *  Turnip -> turnip.js
  *  Grepped Weeklies -> grepGraph.js
  *  Arbolade -> arbolade.js
  *  Ritmus, a parsley timer -> ritmus.js
@@ -87,7 +87,7 @@ function updateConnectionDisplay() {
 }
 //END EventStream
 
-//BEGIN Clock
+//BEGIN Timer Clock
 $('#top-half').data({ clicked: false });
 
 function postClockStart() { $.post("/timer/start"); }
